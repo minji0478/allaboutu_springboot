@@ -11,17 +11,16 @@ import java.util.List;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@RequiredArgsConstructor
 @Entity
 @Table(name = "board")
-@SequenceGenerator(name="board_seq"
-        , sequenceName = "seq_board_num"
-        , initialValue = 1
-        , allocationSize = 1)
+//@SequenceGenerator(name="board_seq"
+//        , sequenceName = "seq_board_num"
+//        , initialValue = 1
+//        , allocationSize = 1)
 public class Board {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "board_seq")
+//    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "board_seq")
     @Column(name = "board_num")
     private long boardNum;
     @Column(name = "user_num")
@@ -41,18 +40,18 @@ public class Board {
     @Column(name = "read_count")
     private long readCount;
 
-    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
-    private List<Comment> comments;
-
-    @ManyToMany
-    @JoinTable(
-            name = "board_hashtag_link",
-            joinColumns = @JoinColumn(name = "board_num"),
-            inverseJoinColumns = @JoinColumn(name = "hashtag_num")
-    )
-    private List<BoardHashtag> boardHashtags;
-
-    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
-    private List<Attachment> attachments;
+//    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
+//    private List<Comment> comments;
+//
+//    @ManyToMany
+//    @JoinTable(
+//            name = "board_hashtag_link",
+//            joinColumns = @JoinColumn(name = "board_num"),
+//            inverseJoinColumns = @JoinColumn(name = "hashtag_num")
+//    )
+//    private List<BoardHashtag> boardHashtags;
+//
+//    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
+//    private List<Attachment> attachments;
 
 }
