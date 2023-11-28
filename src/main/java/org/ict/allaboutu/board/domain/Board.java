@@ -1,10 +1,9 @@
 package org.ict.allaboutu.board.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import javax.persistence.*;
-import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -16,7 +15,7 @@ import java.util.List;
 @Entity
 @Table(name = "board")
 @SequenceGenerator(name="board_seq"
-        ,sequenceName = "seq_board_num"
+        , sequenceName = "seq_board_num"
         , initialValue = 1
         , allocationSize = 1)
 public class Board {
@@ -24,27 +23,23 @@ public class Board {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "board_seq")
     @Column(name = "board_num")
-    private int boardNum;
+    private long boardNum;
     @Column(name = "user_num")
-    private int userNum;
+    private long userNum;
     @Column(name = "category_num")
-    private int categoryNum;
+    private long categoryNum;
     @Column(name = "board_title")
     private String boardTitle;
     @Column(name = "board_content")
     private String boardContent;
     @Column(name = "create_date")
-    @JsonFormat(pattern="yy. MM. dd")
-    private Date createDate;
+    private LocalDateTime createDate;
     @Column(name = "modify_date")
-    @JsonFormat(pattern="yy. MM. dd")
-    private Date modifyDate;
+    private LocalDateTime modifyDate;
     @Column(name = "delete_date")
-    @JsonFormat(pattern="yy. MM. dd")
-    private Date deleteDate;
+    private LocalDateTime deleteDate;
     @Column(name = "read_count")
-    private int readCount;
-    private int likeCount;
+    private long readCount;
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
     private List<Comment> comments;
