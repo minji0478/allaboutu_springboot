@@ -13,14 +13,14 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "board")
-//@SequenceGenerator(name="board_seq"
-//        , sequenceName = "seq_board_num"
-//        , initialValue = 1
-//        , allocationSize = 1)
+@SequenceGenerator(name="board_seq"
+        , sequenceName = "seq_board_num"
+        , initialValue = 1
+        , allocationSize = 1)
 public class Board {
 
     @Id
-//    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "board_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "board_seq")
     @Column(name = "board_num")
     private long boardNum;
     @Column(name = "user_num")
