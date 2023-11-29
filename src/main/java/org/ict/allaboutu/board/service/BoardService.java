@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.allaboutu.board.domain.Board;
 import org.ict.allaboutu.board.repository.BoardRepository;
+import org.ict.allaboutu.board.repository.CommentRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -19,15 +20,34 @@ import java.util.List;
 public class BoardService {
 
     private final BoardRepository boardRepository;
+    private final CommentRepository commentRepository;
 
-    public List<Board> getBoardList() {
-        return boardRepository.findAll();
+    public List<BoardDto> getBoardList() {
+        List<Board> boardEntities = boardRepository.findAll();
+        List<BoardDto> boardDtoList = new ArrayList<>();
+
+        for(Board entity : boardEntities) {
+            BoardDto boardDto = BoardDto.builder()
+                    .boardNum(entity.getBoardNum())
+                    .userNum(entity.getUserNum())
+                    .categoryNum(entity.getCategoryNum())
+                    .boardTitle(entity.getBoardTitle())
+                    .boardContent(entity.getBoardContent())
+                    .createDate(entity.getCreateDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")))
+                    .modifyDate((entity.getModifyDate() != null) ? entity.getModifyDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")) : "N/A")
+                    .readCount(entity.getReadCount())
+                    .build();
+            boardDtoList.add(boardDto);
+        }
+
+        return boardDtoList;
     }
 
-//    public Page<BoardDto> getBoardList(Pageable pageable) {
-//        return null;
-//    }
-//
+    public Board getBoardById(long boardNum) throws Exception {
+
+        return boardRepository.findById(boardNum).get();
+    }
+
 //    public Board getBoardById(Long boardNum) {
 //        return null;
 //    }

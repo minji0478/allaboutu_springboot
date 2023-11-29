@@ -7,6 +7,7 @@ import org.ict.allaboutu.board.service.BoardDto;
 import org.ict.allaboutu.board.service.BoardService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,20 +22,21 @@ public class BoardController {
     private final BoardService boardService;
 
     @GetMapping
-    public ResponseEntity<List<Board>> getBoardList() throws Exception {
-        List<Board> boardList = boardService.getBoardList();
+    public ResponseEntity<List<BoardDto>> getBoardList() throws Exception {
+        List<BoardDto> list = boardService.getBoardList();
 
 //        Page<BoardDto> boardPage = boardService.getBoardList(pageable);
 //        List<BoardDto> boardList = boardPage.getContent();
-        log.info("getBoardList 결과 : " + boardList);
+        log.info("getBoardList 결과 : " + list);
 
-        return ResponseEntity.ok(boardList);
+        return ResponseEntity.ok(list);
     }
 
-//    @GetMapping("/{boardNum}")
-//    public ResponseEntity<Board> getBoardById(@PathVariable Long boardNum) throws Exception {
-//        return boardService.getBoardById(boardNum);
-//    }
+    @GetMapping("/{boardNum}")
+    public ResponseEntity<Board> getBoardById(@PathVariable Long boardNum) throws Exception {
+        Board board = boardService.getBoardById(boardNum);
+        return ResponseEntity.ok(board);
+    }
 //
 //    @PostMapping
 //    public ResponseEntity<Board> createBoard(@RequestBody Board board) throws Exception {
