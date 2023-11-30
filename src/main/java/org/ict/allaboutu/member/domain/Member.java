@@ -2,7 +2,7 @@ package org.ict.allaboutu.member.domain;
 
 import lombok.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Getter
