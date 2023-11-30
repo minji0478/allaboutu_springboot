@@ -1,9 +1,11 @@
-package org.ict.allaboutu.member.domain;
-
-import lombok.*;
+package org.ict.allaboutu.admin.domain;
 
 import jakarta.persistence.*;
+import lombok.*;
+import org.ict.allaboutu.board.domain.Board;
+
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -11,11 +13,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "member")
-public class Member {
+@Table(name = "user_member")
+public class Admin {
+
     @Id
     @Column(name = "USER_NUM")
-    private Long userNum;
+    private long userNum;
 
     @Column(name = "USER_ID")
     private String userId;
@@ -52,4 +55,9 @@ public class Member {
 
     @Column(name = "ACCOUNT")
     private String account;
+
+    @OneToMany
+    @JoinColumn(name = "BOARD_NUM")
+    private List<Board> board;
+
 }
