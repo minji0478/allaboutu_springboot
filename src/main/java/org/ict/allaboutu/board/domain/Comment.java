@@ -1,8 +1,11 @@
 package org.ict.allaboutu.board.domain;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.*;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Getter
@@ -12,21 +15,17 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Entity
 @Table(name = "board_comment")
-//@SequenceGenerator(name="comment_seq"
-//        , sequenceName = "seq_board_num"
-//        , initialValue = 1
-//        , allocationSize = 1)
 public class Comment {
 
     @Id
     @Column(name = "comment_num")
-    private long commentNum;
+    private Long commentNum;
     @Column(name = "board_num")
-    private long boardNum;
+    private Long boardNum;
     @Column(name = "user_num")
-    private long user_num;
+    private Long user_num;
     @Column(name = "parent_num")
-    private long parent_num;
+    private Long parent_num;
     @Column(name = "content")
     private String content;
     @Column(name = "create_date")

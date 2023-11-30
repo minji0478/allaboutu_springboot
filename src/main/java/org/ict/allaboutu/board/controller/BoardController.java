@@ -5,13 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.ict.allaboutu.board.domain.Board;
 import org.ict.allaboutu.board.service.BoardDto;
 import org.ict.allaboutu.board.service.BoardService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -22,13 +22,11 @@ public class BoardController {
     private final BoardService boardService;
 
     @GetMapping
-    public ResponseEntity<List<BoardDto>> getBoardList() throws Exception {
-        List<BoardDto> list = boardService.getBoardList();
-
-//        Page<BoardDto> boardPage = boardService.getBoardList(pageable);
-//        List<BoardDto> boardList = boardPage.getContent();
-        log.info("getBoardList 결과 : " + list);
-
+    public ResponseEntity<Page<BoardDto>> getBoardList(
+            @PageableDefault(sort = {"boardNum"}) Pageable pageable
+    ) throws Exception {
+        pageable = PageRequest.of(0, 4, Sort.by("boardNum").descending());
+        Page<BoardDto> list = boardService.getBoardList(pageable);
         return ResponseEntity.ok(list);
     }
 
@@ -37,12 +35,12 @@ public class BoardController {
         Board board = boardService.getBoardById(boardNum);
         return ResponseEntity.ok(board);
     }
-//
-//    @PostMapping
-//    public ResponseEntity<Board> createBoard(@RequestBody Board board) throws Exception {
-//        return boardService.createBoard(board);
-//    }
-//
+
+    @PostMapping
+    public ResponseEntity<Board> createBoard(@RequestBody BoardDto board) throws Exception {
+        return ResponseEntity.ok(boardService.createBoard(board));
+    }
+
 //    @PatchMapping("/{boardNum}")
 //    public ResponseEntity<Board> updateBoard(@PathVariable Long boardNum, @RequestBody Board board) throws Exception {
 //        return boardService.updateBoard(boardNum, board);
