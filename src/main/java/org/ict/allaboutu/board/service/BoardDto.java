@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.ict.allaboutu.board.domain.Attachment;
+import org.ict.allaboutu.board.domain.BoardHashtag;
+import org.ict.allaboutu.board.domain.Comment;
 
 import java.util.List;
 
@@ -23,4 +26,8 @@ public class BoardDto {
     private String modifyDate;
     private long readCount;
     private long likeCount;
+
+    private List<Comment> comments;
+    private List<BoardHashtag> hashtags;
+    private List<Attachment> attachments;
 }
