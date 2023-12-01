@@ -18,7 +18,7 @@ public class Admin {
 
     @Id
     @Column(name = "USER_NUM")
-    private long userNum;
+    private Long userNum;
 
     @Column(name = "USER_ID")
     private String userId;
@@ -55,6 +55,9 @@ public class Admin {
 
     @Column(name = "ACCOUNT")
     private String account;
+
+    @Column(name = "REPORT_COUNT")
+    private Long reportCount;
 
     @OneToMany
     @JoinColumn(name = "BOARD_NUM")

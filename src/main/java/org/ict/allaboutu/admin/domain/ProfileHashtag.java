@@ -14,10 +14,10 @@ public class ProfileHashtag {
 
     @Id
     @Column(name = "HASHTAG_NUM")
-    private long hashtagNum;
+    private Long hashtagNum;
 
     @Column(name = "CATEGORY_NUM")
-    private long categoryNum;
+    private Long categoryNum;
 
     @Column(name = "HASHTAG_NAME")
     private String hashtagName;

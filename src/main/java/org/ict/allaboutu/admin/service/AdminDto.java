@@ -4,9 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.ict.allaboutu.admin.domain.ProfileHashtag;
+import org.ict.allaboutu.admin.domain.Report;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -27,9 +30,20 @@ public class AdminDto implements Serializable {
 
     private String account;
 
-    private long boardNum;
+    private Long boardNum;
 
     private String userPhone;
 
     private LocalDateTime enrolleDate;
+
+    private Long reportCount;
+
+    private Long reportNum;
+
+    private String reportCause;
+
+    private String reportReason;
+
+    private List<Report> reports;
+    private List<ProfileHashtag> profileHashtags;
 }
