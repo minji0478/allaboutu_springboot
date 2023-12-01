@@ -15,23 +15,19 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Entity
 @Builder
-@Table(name = "board_comment")
-public class Comment {
+@Table(name = "board_like")
+public class BoardLike {
 
     @Id
-    @Column(name = "comment_num")
-    private Long commentNum;
+    @Column(name = "like_num")
+    private Long likeNum;
     @Column(name = "board_num")
     private Long boardNum;
     @Column(name = "user_num")
     private Long userNum;
-    @Column(name = "parent_num")
-    private Long parentNum;
-    @Column(name = "content")
-    private String content;
     @Column(name = "create_date")
     private LocalDateTime createDate;
-    @Column(name = "modify_date")
-    private LocalDateTime modifyDate;
+    @Column(name = "checked")
+    private String checked;
 
 }
