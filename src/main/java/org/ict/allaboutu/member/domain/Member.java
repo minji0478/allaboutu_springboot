@@ -3,6 +3,8 @@ package org.ict.allaboutu.member.domain;
 import lombok.*;
 
 import jakarta.persistence.*;
+import org.springframework.scheduling.quartz.LocalDataSourceJobStore;
+
 import java.time.LocalDateTime;
 
 @Getter
@@ -32,9 +34,6 @@ public class Member {
     @Column(name = "USER_GENDER")
     private String userGender;
 
-    @Column(name = "USER_BIRTH")
-    private String userBirth;
-
     @Column(name = "USER_PHONE")
     private String userPhone;
 
@@ -52,4 +51,10 @@ public class Member {
 
     @Column(name = "ACCOUNT")
     private String account;
+
+    @Column(name = "REPOTE_COUNT")
+    private Long reportCount;
+
+    @Column(name = "USER_BIRTH")
+    private LocalDateTime userBirth;
 }
