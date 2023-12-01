@@ -13,20 +13,20 @@ import java.sql.Date;
 @Builder
 public class NoticeDto {
 
-    private long noticeNum;
-    private long userNum;
+    private Long noticeNum;
+    private Long userNum;
     private String userName;
     private String noticeTitle;
     private String noticeContents;
     private String cartegory;
-    private Date eventStart;
-    private Date eventEnd;
+    private String eventStart;
+    private String eventEnd;
     private String importance;
     private String importanceDate;
-    private Date writeDate;
-    private Date modifyDate;
+    private String writeDate;
+    private String modifyDate;
     private String OriginalFileName;
     private String RenameFileName;
-    private long ReadCount;
+    private Long ReadCount;
 
 }

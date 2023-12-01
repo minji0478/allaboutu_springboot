@@ -20,9 +20,9 @@ import java.sql.Date;
 public class Notice {
     @Id
     @Column(name="notice_num")
-    private long noticeNum;
+    private Long noticeNum;
     @Column(name="user_num")
-    private long userNum;
+    private Long userNum;
     @Column(name="notice_title")
     private String noticeTitle;
     @Column(name="notice_contents")
@@ -36,16 +36,16 @@ public class Notice {
     @Column(name="importance")
     private String importance;
     @Column(name="importance_date")
-    private String importanceDate;
+    private Date importanceDate;
     @Column(name="write_date")
     private Date writeDate;
     @Column(name="modify_date")
     private Date modifyDate;
-    @Column(name="OriginalFileName")
-    private String OriginalFileName;
-    @Column(name="RenameFileName")
-    private String RenameFileName;
-    @Column(name="ReadCount")
-    private long ReadCount;
+    @Column(name="originalFileName")
+    private String originalFileName;
+    @Column(name="renameFileName")
+    private String renameFileName;
+    @Column(name="readCount")
+    private Long readCount;
 
 }
