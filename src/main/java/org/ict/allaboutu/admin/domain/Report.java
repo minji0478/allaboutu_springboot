@@ -2,6 +2,9 @@ package org.ict.allaboutu.admin.domain;
 
 import lombok.*;
 import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @ToString
@@ -13,19 +16,19 @@ public class Report {
 
     @Id
     @Column(name = "REPORT_NUM")
-    private long reportNum;
+    private Long reportNum;
 
     @Column(name = "USER_NUM")
-    private long userNum;
+    private Long userNum;
 
     @Column(name = "BOARD_NUM")
-    private long boardNum;
+    private Long boardNum;
 
     @Column(name = "CATEGORY")
     private String category;
 
     @Column(name = "REPORT_USER_NUM")
-    private long reportUserNum;
+    private Long reportUserNum;
 
     @Column(name = "REPORT_CAUSE")
     private String reportCause;
@@ -33,7 +36,7 @@ public class Report {
     @Column(name = "REPORT_REASON")
     private String reportReason;
 
-    @Column(name = "REPORT_COUNT")
-    private long reportCount;
+    @Column(name = "DELETE_DATE")
+    private LocalDateTime deleteDate;
 
 }
