@@ -9,7 +9,6 @@ import org.ict.allaboutu.board.repository.BoardRepository;
 import org.ict.allaboutu.board.repository.CommentRepository;
 import org.ict.allaboutu.board.repository.HashtagRepository;
 import org.ict.allaboutu.member.domain.Member;
-import org.ict.allaboutu.member.domain.ProfileHashtag;
 import org.ict.allaboutu.member.repository.MemberRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
