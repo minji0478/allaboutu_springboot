@@ -1,5 +1,6 @@
 package org.ict.allaboutu.board.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.allaboutu.board.domain.Board;
@@ -11,7 +12,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.awt.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -41,10 +46,24 @@ public class BoardController {
         return ResponseEntity.ok(boardService.createBoard(board));
     }
 
+    @PostMapping("/images")
+    public ResponseEntity<String> uploadImage(
+            @RequestParam("attachments") MultipartFile file) throws Exception {
+        String fileName = file.getOriginalFilename();
+        System.out.println("Received file: " + fileName);
+
+        // 이미지 저장
+        boardService.uploadImage(file);
+
+        return ResponseEntity.ok("이미지 업로드 성공");
+    }
+
     @DeleteMapping("/{boardNum}")
     public ResponseEntity<Void> deleteBoard(@PathVariable Long boardNum) throws Exception {
         boardService.deleteBoard(boardNum);
         return ResponseEntity.noContent().build();
     }
+
+
 
 }

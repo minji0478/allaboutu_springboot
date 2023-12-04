@@ -2,18 +2,21 @@ package org.ict.allaboutu.board.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+
 import lombok.extern.slf4j.Slf4j;
 import org.ict.allaboutu.board.domain.*;
-import org.ict.allaboutu.board.repository.BoardHashtagLinkRepository;
-import org.ict.allaboutu.board.repository.BoardRepository;
-import org.ict.allaboutu.board.repository.CommentRepository;
-import org.ict.allaboutu.board.repository.HashtagRepository;
+import org.ict.allaboutu.board.repository.*;
 import org.ict.allaboutu.member.domain.Member;
+import org.ict.allaboutu.member.domain.ProfileHashtag;
 import org.ict.allaboutu.member.repository.MemberRepository;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -22,6 +25,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Service
+@PropertySource("classpath:application.properties")
 public class BoardService {
 
     private final BoardRepository boardRepository;
@@ -29,6 +33,10 @@ public class BoardService {
     private final HashtagRepository hashtagRepository;
     private final BoardHashtagLinkRepository boardHashtagLinkRepository;
     private final MemberRepository memberRepository;
+    private final AttachmentRepository attachmentRepository;
+
+    @Value("${file.upload-dir}")
+    private String uploadDir;
 
     @Transactional
     public Page<BoardDto> getBoardList(Pageable pageable) {
@@ -85,7 +93,7 @@ public class BoardService {
         return boardDtoPage;
     }
 
-    public Board getBoardById(long boardNum) throws Exception {
+    public Board getBoardById(Long boardNum) throws Exception {
 
         return boardRepository.findById(boardNum).get();
     }
@@ -118,6 +126,12 @@ public class BoardService {
         }
 
         return saveResult;
+    }
+
+    public void uploadImage(MultipartFile file) throws Exception {
+        String fileName = file.getOriginalFilename();
+        File destFile = new File(uploadDir + fileName);
+        file.transferTo(destFile);
     }
 
     public void deleteBoard(Long boardNum) {

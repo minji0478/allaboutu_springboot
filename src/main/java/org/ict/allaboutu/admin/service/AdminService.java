@@ -11,13 +11,10 @@ import org.ict.allaboutu.board.repository.BoardRepository;
 import org.ict.allaboutu.board.repository.CommentRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -62,23 +59,15 @@ public class AdminService {
         return adminDtos;
     }
 
-//    public void deleteReportBoard(Long boardNum){
-//        reportRepository.deleteById(boardNum);
-//        commentRepository.deleteById(boardNum);
-//        boardRepository.deleteById(boardNum);
+//    public Board getReportDetailList(Long boardNum) throws Exception {
+//        Board board = Board.builder()
+//        return boardRepository.getOne(boardNum);
 //    }
 
-    public ResponseEntity<Board> updateReportBoard(Long boardNum, Board board) {
-        Optional<Board> nowBoard = boardRepository.findById(boardNum);
-
-        nowBoard.ifPresent(existingBoard -> {
-            existingBoard.setDeleteDate(LocalDateTime.now());
-        });
-
-//        nowBoard.setDeleteDate(LocalDateTime.now());
-
-//        Board updateBoard = boardRepository.save(nowBoard);
-        log.info("service board : " + boardNum);
-        return nowBoard.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    public void deleteDateBoard(Board board) throws Exception {
+        Board boardEntity = boardRepository.getOne(board.getBoardNum());
+        log.info("boardEntity : " + boardEntity);
+//        LocalDateTime dateFormat = LocalDateTime.now();
+//        boardEntity.setDeleteDate(dateFormat);
     }
 }
