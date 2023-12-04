@@ -17,7 +17,7 @@ public class BoardHashtag {
 
     @Id
     @Column(name = "hashtag_num")
-    private long hashtagNum;
+    private Long hashtagNum;
     @Column(name = "hashtag")
     private String hashtag;
 
