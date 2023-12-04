@@ -1,9 +1,10 @@
 package org.ict.allaboutu.member.domain;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.*;
-
-import jakarta.persistence.*;
-import org.springframework.scheduling.quartz.LocalDataSourceJobStore;
 
 import java.time.LocalDateTime;
 
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "member")
+@Table(name = "user_member")
 public class Member {
     @Id
     @Column(name = "USER_NUM")

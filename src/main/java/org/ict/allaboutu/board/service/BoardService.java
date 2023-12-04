@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.ict.allaboutu.board.domain.*;
 import org.ict.allaboutu.board.repository.*;
 import org.ict.allaboutu.member.domain.Member;
-import org.ict.allaboutu.member.domain.ProfileHashtag;
 import org.ict.allaboutu.member.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
