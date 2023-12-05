@@ -4,9 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.ict.allaboutu.board.domain.Attachment;
 import org.ict.allaboutu.board.domain.BoardHashtag;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -15,21 +13,22 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class BoardDto {
-    private long boardNum;
-    private long userNum;
+
+    private Long boardNum;
+    private Long userNum;
     private String userId;
     private String userName;
-    private long categoryNum;
+    private Long categoryNum;
     private String category;
     private String boardTitle;
     private String boardContent;
     private String createDate;
     private String modifyDate;
-    private long readCount;
-    private long likeCount;
-    private long commentCount;
+    private Long readCount;
+    private Long likeCount;
+    private Long commentCount;
 
     private List<CommentDto> comments;
     private List<BoardHashtag> hashtags;
-    private List<MultipartFile> attachments;
+
 }

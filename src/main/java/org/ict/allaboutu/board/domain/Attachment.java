@@ -17,9 +17,9 @@ public class Attachment {
 
     @Id
     @Column(name = "board_num")
-    private long boardNum;
+    private Long boardNum;
     @Column(name = "attach_num")
-    private long attachNum;
+    private Long attachNum;
     @Column(name = "original_file_name")
     private String originalFileName;
     @Column(name = "rename_file_name")
