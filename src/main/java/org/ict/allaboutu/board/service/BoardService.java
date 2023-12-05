@@ -2,14 +2,12 @@ package org.ict.allaboutu.board.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-
 import lombok.extern.slf4j.Slf4j;
 import org.ict.allaboutu.board.domain.*;
 import org.ict.allaboutu.board.repository.*;
 import org.ict.allaboutu.member.domain.Member;
 import org.ict.allaboutu.member.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,7 +22,6 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-@PropertySource("classpath:application.properties")
 public class BoardService {
 
     private final BoardRepository boardRepository;
@@ -34,7 +31,7 @@ public class BoardService {
     private final MemberRepository memberRepository;
     private final AttachmentRepository attachmentRepository;
 
-    @Value("${file.upload-dir}")
+    @Value("${board_upload.path}")
     private String uploadDir;
 
     @Transactional
@@ -84,7 +81,7 @@ public class BoardService {
                     .comments(comments)
                     .hashtags(hashtags)
                     .likeCount(likeCount)
-                    .commentCount(comments.size())
+                    .commentCount(Long.valueOf(comments.size()))
                     .readCount(boardEntity.getReadCount())
                     .build();
         });
@@ -98,8 +95,10 @@ public class BoardService {
     }
 
     public Board createBoard(BoardDto boardDto) {
+        Long maxBoardNum = boardRepository.findMaxBoardNum();
+
         Board board = Board.builder()
-                .boardNum(boardRepository.findMaxBoardNum() == null ? 1 : boardRepository.findMaxBoardNum() + 1)
+                .boardNum(maxBoardNum == null ? 1 : maxBoardNum + 1)
                 .userNum(boardDto.getUserNum())
                 .categoryNum(boardDto.getCategoryNum())
                 .boardTitle(boardDto.getBoardTitle())
