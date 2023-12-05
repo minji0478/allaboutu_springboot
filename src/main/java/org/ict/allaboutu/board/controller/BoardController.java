@@ -1,30 +1,42 @@
 package org.ict.allaboutu.board.controller;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.allaboutu.board.domain.Board;
 import org.ict.allaboutu.board.service.BoardDto;
 import org.ict.allaboutu.board.service.BoardService;
+import org.ict.allaboutu.common.FileNameChange;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/boards")
+@PropertySource("classpath:/application.properties")
 public class BoardController {
 
     private final BoardService boardService;
+
+    @Value("${board_upload.path}")
+    private String uploadPath;
 
     @GetMapping
     public ResponseEntity<Page<BoardDto>> getBoardList(
@@ -42,20 +54,45 @@ public class BoardController {
     }
 
     @PostMapping
-    public ResponseEntity<Board> createBoard(@RequestBody BoardDto board) throws Exception {
-        return ResponseEntity.ok(boardService.createBoard(board));
-    }
+    public ResponseEntity<Board> createBoard(
+            @ModelAttribute BoardDto boardDto,
+//            @RequestPart(value = "hashtags", required = false) List<BoardHashtag> hashtags,
+            @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
+    ) throws Exception {
+        System.out.println("<<<<<<<<<<==============================>>>>>>>>>>");
+        System.out.println("POST /boards: boardDto=" + boardDto);
+        System.out.println("POST /boards: hashtags=" + boardDto.getHashtags());
+        System.out.println("POST /boards: attachments=" + attachments);
+        System.out.println("<<<<<<<<<<==============================>>>>>>>>>>");
 
-    @PostMapping("/images")
-    public ResponseEntity<String> uploadImage(
-            @RequestParam("attachments") MultipartFile file) throws Exception {
-        String fileName = file.getOriginalFilename();
-        System.out.println("Received file: " + fileName);
+        if (attachments != null) {
+            String uploadPath = "static/board_upload";
+            ClassPathResource resource = new ClassPathResource("static/board_upload");
+            String absolutePath = resource.getFile().getAbsolutePath();
 
-        // 이미지 저장
-        boardService.uploadImage(file);
+            for (MultipartFile file : attachments) {
+                // 이미지 파일만 업로드
+                if (!Objects.requireNonNull(file.getContentType()).startsWith("image")) {
+                    log.warn("this file is not image type");
+                    return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+                }
 
-        return ResponseEntity.ok("이미지 업로드 성공");
+                String originalFileName = file.getOriginalFilename();
+                String renameFileName = FileNameChange.change(originalFileName, "yyyyMMddHHmmss");
+                String saveName = uploadPath + File.separator + renameFileName;
+                Path savePath = Paths.get(absolutePath, renameFileName);
+                System.out.println(savePath);
+
+                try {
+                    file.transferTo(new File(renameFileName));
+                    System.out.println(originalFileName + " 파일 업로드 성공 - renameFileName=" + renameFileName);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return ResponseEntity.ok(boardService.createBoard(boardDto));
     }
 
     @DeleteMapping("/{boardNum}")
@@ -63,7 +100,5 @@ public class BoardController {
         boardService.deleteBoard(boardNum);
         return ResponseEntity.noContent().build();
     }
-
-
 
 }
