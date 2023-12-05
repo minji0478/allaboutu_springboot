@@ -1,5 +1,6 @@
 package org.ict.allaboutu.admin.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.allaboutu.admin.domain.Admin;
@@ -8,13 +9,14 @@ import org.ict.allaboutu.admin.repository.AdminRepository;
 import org.ict.allaboutu.admin.repository.ReportRepository;
 import org.ict.allaboutu.board.domain.Board;
 import org.ict.allaboutu.board.repository.BoardRepository;
-import org.ict.allaboutu.board.repository.CommentRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -23,10 +25,11 @@ public class AdminService {
     private final AdminRepository adminRepository;
     private final ReportRepository reportRepository;
     private final BoardRepository boardRepository;
-    private final CommentRepository commentRepository;
+
     public Page<AdminDto> getMemberList(Pageable pageable) {
         List<AdminDto> dtos = new ArrayList<>();
         Page<Admin> adminEntites = adminRepository.findAll(pageable);
+        Page<Report> reportEntites = reportRepository.findAll(pageable);
 
         Page<AdminDto> adminDtos = adminEntites.map(adminEntity -> {
 
@@ -53,21 +56,38 @@ public class AdminService {
                     .reportNum(reportEntity.getReportNum())
                     .reportCause(reportEntity.getReportCause())
                     .reportReason(reportEntity.getReportReason())
+                    .deleteDate(reportEntity.getDeleteDate())
                     .build();
         });
 
         return adminDtos;
     }
 
-//    public Board getReportDetailList(Long boardNum) throws Exception {
-//        Board board = Board.builder()
-//        return boardRepository.getOne(boardNum);
-//    }
+    public Long updateReportBoard(Long boardNum) throws Exception {
+        Optional<Board> optionalBoard = boardRepository.findById(boardNum);
 
-    public void deleteDateBoard(Board board) throws Exception {
-        Board boardEntity = boardRepository.getOne(board.getBoardNum());
-        log.info("boardEntity : " + boardEntity);
-//        LocalDateTime dateFormat = LocalDateTime.now();
-//        boardEntity.setDeleteDate(dateFormat);
+        if (optionalBoard.isPresent()) {
+            Board boardEntity = optionalBoard.get();
+
+            log.info("boardEntity: " + boardEntity);
+
+            LocalDateTime dateFormat = LocalDateTime.now();
+            boardEntity.setDeleteDate(dateFormat);
+
+            boardRepository.save(boardEntity);
+            Optional<Report> reportOptional = reportRepository.findByReportNum(boardNum);
+            if (reportOptional.isPresent()){
+                Report reportEntity = reportOptional.get();
+
+                reportEntity.setDeleteDate(dateFormat);
+                reportRepository.save(reportEntity);
+            }else{
+                throw new EntityNotFoundException("report not found with boardNum: " + boardNum);
+            }
+
+        } else {
+            throw new EntityNotFoundException("Board not found with boardNum: " + boardNum);
+        }
+        return boardNum;
     }
 }

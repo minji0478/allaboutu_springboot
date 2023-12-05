@@ -1,11 +1,12 @@
 package org.ict.allaboutu.admin.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.*;
-import org.ict.allaboutu.board.domain.Board;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @Setter
@@ -36,7 +37,7 @@ public class Admin {
     private String userGender;
 
     @Column(name = "USER_BIRTH")
-    private String userBirth;
+    private LocalDateTime userBirth;
 
     @Column(name = "USER_PHONE")
     private String userPhone;
@@ -59,8 +60,8 @@ public class Admin {
     @Column(name = "REPORT_COUNT")
     private Long reportCount;
 
-    @OneToMany
-    @JoinColumn(name = "BOARD_NUM")
-    private List<Board> board;
+//    @OneToMany
+//    @JoinColumn(name = "BOARD_NUM")  Dto 에서 사용하는 방법임!!
+//    private List<Board> board;
 
 }

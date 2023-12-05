@@ -11,9 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -45,20 +43,11 @@ public class AdminController {
 //        return ResponseEntity.ok(boardService.createBoard(board));
 //    }
 
-//    @DeleteMapping("/reports/{boardNum}")
-//    public void deleteReportBoard(@PathVariable Long boardNum) throws Exception {
-//        adminService.deleteReportBoard(boardNum);
-//    }
+    @PatchMapping("/reports/{boardNum}")
+    public Long updateReportBoard(@PathVariable Long boardNum) throws Exception {
+        log.info("controller boardNum: " + boardNum);
+        return adminService.updateReportBoard(boardNum);
+    }
 
-//    @PatchMapping("/reports/{boardNum}")
-//    public ResponseEntity<Board> updateReportBoard(@PathVariable Long boardNum, @RequestBody Board board) throws Exception {
-//        log.info("controller boardNum: " + boardNum);
-//        return adminService.updateReportBoard(boardNum, board);
-//    }
-
-//    @PutMapping("/reports/{boardNum}")
-//    public ResponseEntity<Board> deleteDateBoard(@PathVariable("boardNum") Long boardNum) throws Exception{
-//
-//    }
 }
 
