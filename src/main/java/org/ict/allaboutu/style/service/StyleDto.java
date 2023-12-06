@@ -16,7 +16,9 @@ public class StyleDto {
     private long userNum;
     private long formNum;
     private String userImg;
+    private String userReimg;
     private String userStyle;
+    private String userRestyle;
     private long height;
     private long weight;
     private long shoulder;

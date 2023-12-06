@@ -2,6 +2,13 @@ package org.ict.allaboutu.style.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.ict.allaboutu.board.domain.Board;
+import org.ict.allaboutu.board.domain.BoardHashtag;
+import org.ict.allaboutu.board.domain.BoardHashtagLink;
+import org.ict.allaboutu.board.domain.BoardHashtagLinkPK;
+import org.ict.allaboutu.board.service.BoardDto;
+import org.ict.allaboutu.style.domain.Style;
+import org.ict.allaboutu.style.service.StyleDto;
 import org.ict.allaboutu.style.repository.StyleRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -13,6 +20,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.sql.Date;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -27,6 +35,7 @@ public class StyleService {
     private String uploadDir;
 
     public String uploadImage(MultipartFile file) throws Exception {
+        Long maxStyleNum = styleRepository.findMaxStyleNum();
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
         String fileExtension = getFileExtension(fileName);
         String newFileName = generateNewFileName(fileExtension);
@@ -40,6 +49,31 @@ public class StyleService {
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
         log.info("filePath.toString() : " + filePath.toString());
         return filePath.toString();
+    }
+
+    public Style insertStyle(StyleDto styleDto) {
+        Long maxStyleNum = styleRepository.findMaxStyleNum();
+
+        Style style = Style.builder()
+                .styleNum(maxStyleNum == null ? 1 : maxStyleNum + 1)
+                .userNum(styleDto.getUserNum())
+                .formNum(styleDto.getFormNum())
+                .userImg(styleDto.getUserImg())
+                .userReimg(styleDto.getUserReimg())
+                .userStyle(styleDto.getUserStyle())
+                .userRestyle(styleDto.getUserRestyle())
+                .height(styleDto.getHeight())
+                .weight(styleDto.getWeight())
+                .shoulder(styleDto.getShoulder())
+                .waist(styleDto.getWaist())
+                .arm(styleDto.getArm())
+                .leg(styleDto.getLeg())
+                .styleDate(styleDto.getStyleDate())
+                .build();
+
+        Style saveResult = styleRepository.save(style);
+
+        return saveResult;
     }
 
     private String getFileExtension(String fileName) {
