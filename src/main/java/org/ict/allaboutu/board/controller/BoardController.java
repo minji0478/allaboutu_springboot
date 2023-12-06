@@ -2,103 +2,93 @@ package org.ict.allaboutu.board.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.ict.allaboutu.admin.domain.Report;
 import org.ict.allaboutu.board.domain.Board;
 import org.ict.allaboutu.board.service.BoardDto;
 import org.ict.allaboutu.board.service.BoardService;
-import org.ict.allaboutu.common.FileNameChange;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/boards")
-@PropertySource("classpath:/application.properties")
+
 public class BoardController {
 
     private final BoardService boardService;
 
-    @Value("${board_upload.path}")
-    private String uploadPath;
-
+    // 게시글 목록 조회
     @GetMapping
-    public ResponseEntity<Page<BoardDto>> getBoardList(
-            @PageableDefault(sort = {"boardNum"}) Pageable pageable
-    ) throws Exception {
-        pageable = PageRequest.of(0, 4, Sort.by("boardNum").descending());
+    @CrossOrigin(origins = "http://localhost:2222")
+    public ResponseEntity<Page<BoardDto>> getBoardList(@PageableDefault(page = 0, size = 4) Pageable pageable) throws Exception {
+        System.out.println("pageable: " + pageable);
+        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("boardNum").descending());
+        System.out.println("pageable: " + pageable);
         Page<BoardDto> list = boardService.getBoardList(pageable);
         return ResponseEntity.ok(list);
     }
 
+    // 게시글 상세 조회
     @GetMapping("/{boardNum}")
     public ResponseEntity<Board> getBoardById(@PathVariable Long boardNum) throws Exception {
-        Board board = boardService.getBoardById(boardNum);
-        return ResponseEntity.ok(board);
+        return ResponseEntity.ok(boardService.getBoardById(boardNum));
     }
 
+    // 게시글 랭킹 조회
+    @GetMapping("/rank")
+    public ResponseEntity<Page<BoardDto>> getBoardRank() throws Exception {
+        Pageable pageable = PageRequest.of(0, 5, Sort.by(
+                Sort.Order.desc("readCount")
+        ).descending());
+        return ResponseEntity.ok(boardService.getBoardRank(pageable));
+    }
+
+
+    // 게시글 등록
     @PostMapping
-    public ResponseEntity<Board> createBoard(
-            @ModelAttribute BoardDto boardDto,
-//            @RequestPart(value = "hashtags", required = false) List<BoardHashtag> hashtags,
-            @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
+    public ResponseEntity<BoardDto> createBoard(
+            @RequestPart("board") Board board,
+            @RequestPart(value = "hashtags", required = false) List<String> hashtagList,
+            @RequestPart(value = "attachments", required = false) List<MultipartFile> files
     ) throws Exception {
-        System.out.println("<<<<<<<<<<==============================>>>>>>>>>>");
-        System.out.println("POST /boards: boardDto=" + boardDto);
-        System.out.println("POST /boards: hashtags=" + boardDto.getHashtags());
-        System.out.println("POST /boards: attachments=" + attachments);
-        System.out.println("<<<<<<<<<<==============================>>>>>>>>>>");
-
-        if (attachments != null) {
-            String uploadPath = "static/board_upload";
-            ClassPathResource resource = new ClassPathResource("static/board_upload");
-            String absolutePath = resource.getFile().getAbsolutePath();
-
-            for (MultipartFile file : attachments) {
-                // 이미지 파일만 업로드
-                if (!Objects.requireNonNull(file.getContentType()).startsWith("image")) {
-                    log.warn("this file is not image type");
-                    return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-                }
-
-                String originalFileName = file.getOriginalFilename();
-                String renameFileName = FileNameChange.change(originalFileName, "yyyyMMddHHmmss");
-                String saveName = uploadPath + File.separator + renameFileName;
-                Path savePath = Paths.get(absolutePath, renameFileName);
-                System.out.println(savePath);
-
-                try {
-                    file.transferTo(new File(renameFileName));
-                    System.out.println(originalFileName + " 파일 업로드 성공 - renameFileName=" + renameFileName);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        return ResponseEntity.ok(boardService.createBoard(boardDto));
+        return ResponseEntity.ok(boardService.createBoard(board, hashtagList, files));
     }
 
+    // 게시글 삭제
     @DeleteMapping("/{boardNum}")
     public ResponseEntity<Void> deleteBoard(@PathVariable Long boardNum) throws Exception {
         boardService.deleteBoard(boardNum);
         return ResponseEntity.noContent().build();
     }
 
+    // 이미지 가져오기
+    @GetMapping("/image/{imageName}")
+    public ResponseEntity<Resource> getImage(@PathVariable String imageName) throws Exception {
+        Resource resource = new ClassPathResource("/board_upload/" + imageName);
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(new InputStreamResource(resource.getInputStream()));
+    }
+
+    // 게시글 신고
+    @PostMapping("/{boardNum}/reports")
+    public ResponseEntity<Report> reportBoard(
+            @PathVariable Long boardNum,
+            @RequestBody Report report
+    ) throws Exception {
+        return ResponseEntity.ok(boardService.reportBoard(report));
+    }
 }

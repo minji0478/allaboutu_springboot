@@ -13,11 +13,10 @@ import java.io.Serializable;
 @AllArgsConstructor
 @EqualsAndHashCode
 @Embeddable
-public class BoardHashtagLinkPK implements Serializable {
+public class AttachmentPK implements Serializable {
 
     @Column(name = "board_num")
     private Long boardNum;
-    @Column(name = "hashtag_num")
-    private Long hashtagNum;
-
+    @Column(name = "attach_num")
+    private Long attachNum;
 }

@@ -34,6 +34,7 @@ public class AdminService {
         Page<AdminDto> adminDtos = adminEntites.map(adminEntity -> {
 
             return AdminDto.builder()
+                    .userNum(adminEntity.getUserNum())
                     .userId(adminEntity.getUserId())
                     .userEmail(adminEntity.getUserEmail())
                     .userPhone(adminEntity.getUserPhone())
@@ -63,6 +64,8 @@ public class AdminService {
         return adminDtos;
     }
 
+
+
     public Long updateReportBoard(Long boardNum) throws Exception {
         Optional<Board> optionalBoard = boardRepository.findById(boardNum);
 
@@ -89,5 +92,31 @@ public class AdminService {
             throw new EntityNotFoundException("Board not found with boardNum: " + boardNum);
         }
         return boardNum;
+    }
+
+
+    public Board detailReportBoard(Long boardNum) throws Exception {
+        Optional<Board> boardEntity = boardRepository.findById(boardNum);
+        if(boardEntity.isPresent()){
+            Board board = boardEntity.get();
+
+            String boardTitle = board.getBoardTitle();
+            String boardContent = board.getBoardContent();
+
+            return board;
+
+        }else{
+            throw new EntityNotFoundException("Board not found with boardNum: " + boardNum);
+        }
+    }
+
+    public Admin updateMemberAccount(Long userNum, AdminDto adminDto) throws Exception {
+
+        Admin adminEntity = adminRepository.findById(userNum)
+                .orElseThrow(() -> new EntityNotFoundException("서비스에는 Id로 찾은 값이 없다"));
+
+        adminEntity.setAccount(adminDto.getAccount());
+
+        return adminRepository.save(adminEntity);
     }
 }

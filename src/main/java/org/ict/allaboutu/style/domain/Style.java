@@ -25,13 +25,19 @@ public class Style {
     private long userNum;
 
     @Column(name = "form_num")
-    private long form_num;
+    private long formNum;
 
     @Column(name = "user_img")
     private String userImg;
 
+    @Column(name = "user_reimg")
+    private String userReimg;
+
     @Column(name = "user_style")
-    private long userStyle;
+    private String userStyle;
+
+    @Column(name = "user_restyle")
+    private String userRestyle;
 
     @Column(name = "height")
     private long height;

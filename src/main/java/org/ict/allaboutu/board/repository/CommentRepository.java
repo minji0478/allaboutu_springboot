@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
-    @Query("select c from Comment c where c.boardNum = :boardNum")
+    @Query("select c from Comment c where c.boardNum = :boardNum order by c.commentNum desc")
     List<Comment> findAllByBoardNum(@Param("boardNum") Long boardNum);
 
     @Query("select max(c.commentNum) from Comment c")

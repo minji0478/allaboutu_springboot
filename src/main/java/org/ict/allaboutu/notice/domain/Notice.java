@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 
 import java.sql.Date;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -30,17 +31,17 @@ public class Notice {
     @Column(name="cartegory")
     private String cartegory;
     @Column(name="eventStart")
-    private Date eventStart;
+    private LocalDateTime eventStart;
     @Column(name="eventEnd")
-    private Date eventEnd;
+    private LocalDateTime eventEnd;
     @Column(name="importance")
     private String importance;
     @Column(name="importance_date")
-    private Date importanceDate;
+    private LocalDateTime importanceDate;
     @Column(name="write_date")
-    private Date writeDate;
+    private LocalDateTime writeDate;
     @Column(name="modify_date")
-    private Date modifyDate;
+    private LocalDateTime modifyDate;
     @Column(name="originalFileName")
     private String originalFileName;
     @Column(name="renameFileName")

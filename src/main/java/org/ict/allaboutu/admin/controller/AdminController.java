@@ -2,9 +2,10 @@ package org.ict.allaboutu.admin.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.ict.allaboutu.admin.domain.Admin;
 import org.ict.allaboutu.admin.service.AdminDto;
 import org.ict.allaboutu.admin.service.AdminService;
-import org.ict.allaboutu.board.service.BoardService;
+import org.ict.allaboutu.board.domain.Board;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping
 public class AdminController {
     private final AdminService adminService;
-    private final BoardService boardService;
     @GetMapping("/admin")
     public ResponseEntity<Page<AdminDto>> getMemberList(
             @PageableDefault(sort = {"userNum"}) Pageable pageable
@@ -38,16 +38,23 @@ public class AdminController {
         return ResponseEntity.ok(list);
     }
 
-//    @GetMapping("reports/{boardNum}")
-//    public ResponseEntity<BoardDto> getReportDetailList(@PathVariable("boardNum") Long boardNum) throws Exception {
-//        return ResponseEntity.ok(boardService.createBoard(board));
-//    }
-
     @PatchMapping("/reports/{boardNum}")
     public Long updateReportBoard(@PathVariable Long boardNum) throws Exception {
         log.info("controller boardNum: " + boardNum);
         return adminService.updateReportBoard(boardNum);
     }
 
+    @PatchMapping("/member/{userNum}")
+    public ResponseEntity<Admin> updateMemberAccount(@PathVariable Long userNum, @RequestBody AdminDto adminDto) throws Exception{
+        log.info("controllerUserNum : " +userNum);
+//        Admin updateMember = adminService.updateMemberAccount(userNum, adminDto);
+        Admin updateMember = adminService.updateMemberAccount(userNum, adminDto);
+        return ResponseEntity.ok(updateMember);
+    }
+
+    @GetMapping("/reports/{boardNum}")
+    public Board detailReportBoard(@PathVariable Long boardNum) throws Exception {
+        return adminService.detailReportBoard(boardNum);
+    }
 }
 
