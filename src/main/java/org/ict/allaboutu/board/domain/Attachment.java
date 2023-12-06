@@ -1,9 +1,6 @@
 package org.ict.allaboutu.board.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Getter
@@ -12,14 +9,12 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 @Table(name = "board_files")
 public class Attachment {
 
-    @Id
-    @Column(name = "board_num")
-    private Long boardNum;
-    @Column(name = "attach_num")
-    private Long attachNum;
+    @EmbeddedId
+    private AttachmentPK id;
     @Column(name = "original_file_name")
     private String originalFileName;
     @Column(name = "rename_file_name")

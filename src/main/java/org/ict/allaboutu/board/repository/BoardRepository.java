@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface BoardRepository extends JpaRepository<Board, Long> {
 
@@ -27,4 +29,7 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
 
     @Query(value = "SELECT bc.category FROM BoardCategory bc WHERE bc.categoryNum = :categoryNum")
     public String findCategoryByCategoryNum(@Param("categoryNum") Long categoryNum);
+
+    @Query(value = "SELECT b FROM Board b WHERE b.deleteDate IS NULL ORDER BY b.readCount DESC")
+    public Page<Board> findBestBoards(Pageable pageable);
 }
