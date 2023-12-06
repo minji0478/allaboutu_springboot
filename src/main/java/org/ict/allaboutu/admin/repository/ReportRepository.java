@@ -14,4 +14,7 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
 
     @Query("SELECT r FROM Report r WHERE r.boardNum = :boardNum")
     Optional<Report> findByReportNum(@Param("boardNum") Long boardNum);
+
+    @Query(value = "SELECT MAX(r.reportNum) FROM Report r")
+    public Long findMaxReportNum();
 }

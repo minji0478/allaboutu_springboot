@@ -24,9 +24,6 @@ public class Report {
     @Column(name = "BOARD_NUM")
     private Long boardNum;
 
-    @Column(name = "CATEGORY")
-    private String category;
-
     @Column(name = "REPORT_USER_NUM")
     private Long reportUserNum;
 
