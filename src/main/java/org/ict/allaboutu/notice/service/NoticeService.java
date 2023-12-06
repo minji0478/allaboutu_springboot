@@ -6,15 +6,21 @@ import org.ict.allaboutu.board.domain.Board;
 import org.ict.allaboutu.board.repository.BoardRepository;
 import org.ict.allaboutu.board.repository.CommentRepository;
 import org.ict.allaboutu.board.service.BoardDto;
+import org.ict.allaboutu.member.domain.Member;
+import org.ict.allaboutu.member.repository.MemberRepository;
 import org.ict.allaboutu.notice.domain.Notice;
 import org.ict.allaboutu.notice.repository.NoticeRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -25,11 +31,41 @@ import java.util.Optional;
 public class NoticeService {
 
     private final NoticeRepository  noticeRepository;
+    private final MemberRepository memberRepository;
 
-    public List<Notice> getNoticeList() {
-            List<Notice> noticeList = noticeRepository.findAll();
+//    public List<Notice> getNoticeList() {
+//            List<Notice> noticeList = noticeRepository.findAll(Sort.by(Sort.Direction.DESC,"noticeNum"));
+//
+//        return noticeList;
+//    }
 
-        return noticeList;
+    public Page<NoticeDto> getNoticeList(Pageable pageable) {
+
+        Page<Notice> noticeList = noticeRepository.findAll(pageable);
+        Page<NoticeDto> noticeDtoList = noticeList.map(notice -> {
+            Member member = memberRepository.findById(notice.getUserNum()).get();
+
+            return NoticeDto.builder()
+                    .noticeNum(notice.getNoticeNum())
+                    .userNum(member.getUserNum())
+                    .userName(member.getUserName())
+                    .noticeTitle(notice.getNoticeTitle())
+                    .noticeContents(notice.getNoticeContents())
+                    .cartegory(notice.getCartegory())
+                    .eventStart(notice.getEventStart() !=null ? notice.getEventStart().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A")
+                    .eventEnd(notice.getEventEnd()!=null ? notice.getEventEnd().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A")
+                    .importance(notice.getImportance())
+                    .importanceDate(notice.getImportanceDate()!=null ? notice.getImportanceDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A")
+                    .writeDate(notice.getWriteDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+                    .modifyDate(notice.getModifyDate() !=null ? notice.getModifyDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A")
+                    .OriginalFileName(notice.getOriginalFileName())
+                    .RenameFileName(notice.getRenameFileName())
+                    .ReadCount(notice.getReadCount())
+                    .build();
+        });
+        return  noticeDtoList;
+
+
     }
 
 //    public List<Notice> searchByTitle(String title) {
@@ -40,9 +76,8 @@ public class NoticeService {
 
         Long noticeNum = noticeRepository.findMaxNoticeNumber() + 1;
         notice.setNoticeNum(noticeNum);
-        notice.setWriteDate(Date.valueOf(LocalDate.now()));
+        notice.setWriteDate(LocalDateTime.now());
         notice.setReadCount(0L);
-
         return  noticeRepository.save(notice);
 
     }
@@ -50,10 +85,9 @@ public class NoticeService {
         return noticeRepository.save(notice);
     }
 
-
     public Notice getByNoticeId(Long noticeNum) {
-        Optional<Notice> optionalNotice = noticeRepository.findById(noticeNum);
-        return optionalNotice.orElse(null); // 또는 필요한 경우 사용자 정의 예외를 throw
+        Notice notice = noticeRepository.findById(noticeNum).get();
+        return notice; // 또는 필요한 경우 사용자 정의 예외를 throw
     }
 
     public Notice updateNotice(Long noticeNum, Notice updatedNotice) {
@@ -82,8 +116,6 @@ public class NoticeService {
         }
         // 존재하지 않아도 아무런 동작을 하지 않음 (에러를 발생시키거나 예외를 던지는 등의 처리도 가능)
     }
-
-
 
 
 }
