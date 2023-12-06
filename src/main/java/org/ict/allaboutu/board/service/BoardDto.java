@@ -4,7 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.ict.allaboutu.board.domain.Attachment;
 import org.ict.allaboutu.board.domain.BoardHashtag;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -27,8 +29,10 @@ public class BoardDto {
     private Long readCount;
     private Long likeCount;
     private Long commentCount;
+    private Long rank;
 
     private List<CommentDto> comments;
     private List<BoardHashtag> hashtags;
+    private List<Attachment> attachments;
 
 }
