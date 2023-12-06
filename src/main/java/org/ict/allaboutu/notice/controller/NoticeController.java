@@ -6,8 +6,13 @@ import org.ict.allaboutu.board.domain.Board;
 import org.ict.allaboutu.board.service.BoardDto;
 import org.ict.allaboutu.notice.domain.Notice;
 import org.ict.allaboutu.notice.repository.NoticeRepository;
+import org.ict.allaboutu.notice.service.NoticeDto;
 import org.ict.allaboutu.notice.service.NoticeService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,13 +21,15 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/notices")
+@RequestMapping("/notice")
 public class NoticeController {
 
    private final NoticeService noticeService;
+
     @GetMapping
-    public ResponseEntity<List<Notice>> getNoticeList() throws Exception {
-        List<Notice> list = noticeService.getNoticeList();
+    public ResponseEntity<Page<NoticeDto>> getNoticeList(@PageableDefault(sort = {"noticeNum"}) Pageable pageable) throws Exception {
+        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("noticeNum").descending());
+        Page<NoticeDto> list = noticeService.getNoticeList(pageable);
         log.info("getNoticeList 결과 : " + list);
         return ResponseEntity.ok(list);
     }
@@ -38,7 +45,7 @@ public class NoticeController {
 //        }
 //    }
 
-    @GetMapping("/details/{noticeNum}")
+    @GetMapping("detail/{noticeNum}")
     public ResponseEntity<Notice> getNotice(@PathVariable Long noticeNum) throws Exception {
         Notice notice = noticeService.getByNoticeId(noticeNum);
         if (notice != null) {
@@ -75,14 +82,16 @@ public class NoticeController {
 
     @DeleteMapping("/{noticeNum}")
     public ResponseEntity<Void> deleteNotice(@PathVariable Long noticeNum) {
-        Notice existingNotice = noticeService.getByNoticeId(noticeNum);
-
-        if (existingNotice != null) {
-            noticeService.deleteNotice(noticeNum);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+//        Notice existingNotice = noticeService.getByNoticeId(noticeNum);
+//
+//        if (existingNotice != null) {
+//            noticeService.deleteNotice(noticeNum);
+//            return ResponseEntity.noContent().build();
+//        } else {
+//            return ResponseEntity.notFound().build();
+//        }
+        noticeService.deleteNotice(noticeNum);
+        return ResponseEntity.noContent().build();
     }
 
 
