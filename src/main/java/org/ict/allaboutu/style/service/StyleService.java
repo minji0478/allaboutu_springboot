@@ -72,7 +72,6 @@ public class StyleService {
                 .build();
 
         Style saveResult = styleRepository.save(style);
-
         return saveResult;
     }
 
