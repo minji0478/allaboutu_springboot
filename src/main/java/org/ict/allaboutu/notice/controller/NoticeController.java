@@ -1,5 +1,6 @@
 package org.ict.allaboutu.notice.controller;
 
+import jakarta.mail.Quota;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.allaboutu.board.domain.Board;
@@ -8,13 +9,18 @@ import org.ict.allaboutu.notice.domain.Notice;
 import org.ict.allaboutu.notice.repository.NoticeRepository;
 import org.ict.allaboutu.notice.service.NoticeDto;
 import org.ict.allaboutu.notice.service.NoticeService;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -45,19 +51,30 @@ public class NoticeController {
 //        }
 //    }
 
-    @GetMapping("detail/{noticeNum}")
+    @GetMapping("/detail/{noticeNum}")
     public ResponseEntity<Notice> getNotice(@PathVariable Long noticeNum) throws Exception {
         Notice notice = noticeService.getByNoticeId(noticeNum);
-        if (notice != null) {
+            if (notice != null) {
                 return ResponseEntity.ok(notice);
         } else {
             return ResponseEntity.notFound().build();
         }
     }
 
+    @GetMapping("/image/{renamefileName}")
+    public ResponseEntity<Resource> getImage(@PathVariable String renamefileName) throws Exception {
+        Resource resource = new ClassPathResource("/notice_upload/" + renamefileName);
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(new InputStreamResource(resource.getInputStream()));
+    }
+
     @PostMapping
-    public ResponseEntity<Notice> createNotice(@RequestBody Notice notice) throws Exception {
-        return ResponseEntity.ok(noticeService.createNotice(notice));
+    public ResponseEntity<NoticeDto> createNotice(
+            @RequestPart("notice") Notice notice,
+            @RequestPart(value="file", required = false) MultipartFile file) throws Exception {
+
+        return ResponseEntity.ok(noticeService.createNotice(notice, file));
 
     }
 
