@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping
 public class MemberController {
 
-    @PostMapping("/login")
-    public String loginMethod(@RequestBody Member member) {
-        log.info("/login : " + member.toString());
-        return null;
-    }
+//    @PostMapping("/login")
+//    public String loginMethod(@RequestBody Member member) {
+//        log.info("/login : " + member.toString());
+//        return null;
+//    }
 }

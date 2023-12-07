@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 @Table(name = "user_member")
 public class Member {
     @Id
@@ -53,7 +54,7 @@ public class Member {
     @Column(name = "ACCOUNT")
     private String account;
 
-    @Column(name = "REPOTE_COUNT")
+    @Column(name = "REPORT_COUNT")
     private Long reportCount;
 
     @Column(name = "USER_BIRTH")
