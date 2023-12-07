@@ -1,5 +1,6 @@
 package org.ict.allaboutu.member.service;
 
+import org.ict.allaboutu.member.domain.ProfileHashtag;
 import org.ict.allaboutu.member.domain.ProfileHashtagLink;
 
 import java.util.List;
@@ -20,5 +21,5 @@ public class MemberDto {
     private Long reportCount;
     private String userBirth;
 
-    private List<ProfileHashtagLink> hashtags;
+    private List<ProfileHashtag> hashtags;
 }

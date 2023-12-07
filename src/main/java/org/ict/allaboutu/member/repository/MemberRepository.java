@@ -15,6 +15,5 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query(value = "SELECT m.userId FROM Member m WHERE m.userNum = :userNum")
     public String findUserIdByUserNum(@Param("userNum") Long userNum);
 
-    @Query("SELECT p FROM ProfileHashtagLink p JOIN ProfileHashtagLink phl ON p.hashtagNum = phl.hashtagNum WHERE phl.userNum = :userNum")
-    public List<ProfileHashtagLink> findHashtagsByUserNum(@Param("userNum") Long userNum);
+    Member findByUserId(String userId);
 }
