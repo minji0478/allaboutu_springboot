@@ -8,8 +8,10 @@ import org.ict.allaboutu.admin.repository.ReportRepository;
 import org.ict.allaboutu.board.domain.*;
 import org.ict.allaboutu.board.repository.*;
 import org.ict.allaboutu.member.domain.Member;
+import org.ict.allaboutu.member.domain.ProfileHashtag;
 import org.ict.allaboutu.member.repository.MemberRepository;
-import org.springframework.beans.factory.annotation.Value;
+import org.ict.allaboutu.member.repository.ProfileHashtagRepository;
+import org.ict.allaboutu.member.service.MemberDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -34,61 +36,14 @@ public class BoardService {
     private final MemberRepository memberRepository;
     private final AttachmentRepository attachmentRepository;
     private final ReportRepository ReportRepository;
-
-    @Value("${board_upload.path}")
-    private String uploadDir;
+    private final ProfileHashtagRepository profileHashtagRepository;
 
     @Transactional
     public Page<BoardDto> getBoardList(Pageable pageable) {
-        Page<Board> boardEntities = boardRepository.findByDeleteDateIsNull(pageable);
+        Page<Board> boardPage = boardRepository.findByDeleteDateIsNull(pageable);
 
-        Page<BoardDto> boardDtoPage = boardEntities.map(boardEntity -> {
-            List<Comment> commentList = commentRepository.findAllByBoardNum(boardEntity.getBoardNum());
-            List<CommentDto> comments = commentList.stream().map(comment -> {
-                Member writer = memberRepository.findById(comment.getUserNum()).get();
-
-                return CommentDto.builder()
-                        .commentNum(comment.getCommentNum())
-                        .boardNum(comment.getBoardNum())
-                        .userNum(comment.getUserNum())
-                        .userId(writer.getUserId())
-                        .userName(writer.getUserName())
-                        .content(comment.getContent())
-                        .createDate(comment.getCreateDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")))
-                        .modifyDate((comment.getModifyDate() != null) ? comment.getModifyDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")) : "N/A")
-                        .build();
-            }).toList();
-
-            // 해시태그 및 첨부파일 목록 조회
-            List<BoardHashtag> hashtags = hashtagRepository.findAllByBoardNum(boardEntity.getBoardNum());
-            List<Attachment> attachments = attachmentRepository.findAllByBoardNum(boardEntity.getBoardNum());
-
-            // 조회수 증가
-            boardRepository.updateReadCount(boardEntity.getBoardNum());
-            boardEntity.setReadCount(boardEntity.getReadCount() + 1);
-
-            Long likeCount = boardRepository.countLikeByBoardNum(boardEntity.getBoardNum());
-            String category = boardRepository.findCategoryByCategoryNum(boardEntity.getCategoryNum());
-            Member member = memberRepository.findById(boardEntity.getUserNum()).get();
-
-            return BoardDto.builder()
-                    .boardNum(boardEntity.getBoardNum())
-                    .userNum(boardEntity.getUserNum())
-                    .userId(member.getUserId())
-                    .userName(member.getUserName())
-                    .categoryNum(boardEntity.getCategoryNum())
-                    .category(category)
-                    .boardTitle(boardEntity.getBoardTitle())
-                    .boardContent(boardEntity.getBoardContent())
-                    .createDate(boardEntity.getCreateDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")))
-                    .modifyDate((boardEntity.getModifyDate() != null) ? boardEntity.getModifyDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")) : "N/A")
-                    .comments(comments)
-                    .hashtags(hashtags)
-                    .attachments(attachments)
-                    .likeCount(likeCount)
-                    .commentCount(Long.valueOf(comments.size()))
-                    .readCount(boardEntity.getReadCount())
-                    .build();
+        Page<BoardDto> boardDtoPage = boardPage.map(board -> {
+            return getBoardDto(board);
         });
 
         return boardDtoPage;
@@ -200,58 +155,75 @@ public class BoardService {
     }
 
     public Page<BoardDto> getBoardRank(Pageable pageable) {
-        Page<Board> boardRankList = boardRepository.findBestBoards(pageable);
+        Page<Board> boardRankPage = boardRepository.findBestBoards(pageable);
 
-        Page<BoardDto> rankDtoList = boardRankList.map(boardEntity -> {
-            List<Comment> commentList = commentRepository.findAllByBoardNum(boardEntity.getBoardNum());
-            List<CommentDto> comments = commentList.stream().map(comment -> {
-                Member writer = memberRepository.findById(comment.getUserNum()).get();
-
-                return CommentDto.builder()
-                        .commentNum(comment.getCommentNum())
-                        .boardNum(comment.getBoardNum())
-                        .userNum(comment.getUserNum())
-                        .userId(writer.getUserId())
-                        .userName(writer.getUserName())
-                        .content(comment.getContent())
-                        .createDate(comment.getCreateDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")))
-                        .modifyDate((comment.getModifyDate() != null) ? comment.getModifyDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")) : "N/A")
-                        .build();
-            }).toList();
-
-            // 해시태그 및 첨부파일 목록 조회
-            List<BoardHashtag> hashtags = hashtagRepository.findAllByBoardNum(boardEntity.getBoardNum());
-            List<Attachment> attachments = attachmentRepository.findAllByBoardNum(boardEntity.getBoardNum());
-
-            // 조회수 증가
-            boardRepository.updateReadCount(boardEntity.getBoardNum());
-            boardEntity.setReadCount(boardEntity.getReadCount() + 1);
-
-            Long likeCount = boardRepository.countLikeByBoardNum(boardEntity.getBoardNum());
-            String category = boardRepository.findCategoryByCategoryNum(boardEntity.getCategoryNum());
-            Member member = memberRepository.findById(boardEntity.getUserNum()).get();
-
-            return BoardDto.builder()
-                    .boardNum(boardEntity.getBoardNum())
-                    .userNum(boardEntity.getUserNum())
-                    .userId(member.getUserId())
-                    .userName(member.getUserName())
-                    .categoryNum(boardEntity.getCategoryNum())
-                    .category(category)
-                    .boardTitle(boardEntity.getBoardTitle())
-                    .boardContent(boardEntity.getBoardContent())
-                    .createDate(boardEntity.getCreateDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")))
-                    .modifyDate((boardEntity.getModifyDate() != null) ? boardEntity.getModifyDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")) : "N/A")
-                    .comments(comments)
-                    .hashtags(hashtags)
-                    .attachments(attachments)
-                    .likeCount(likeCount)
-                    .commentCount(Long.valueOf(comments.size()))
-                    .readCount(boardEntity.getReadCount())
-                    .build();
+        Page<BoardDto> bpardRankDtoPage = boardRankPage.map(board -> {
+            return getBoardDto(board);
         });
 
-        return rankDtoList;
+        return bpardRankDtoPage;
+    }
+
+    public MemberDto getMemberDto(Long userNum) {
+        Member writer = memberRepository.findById(userNum).get();
+        List<ProfileHashtag> profileHashtags = profileHashtagRepository.findAllByUserNum(userNum);
+
+        MemberDto writerDto = MemberDto.builder()
+                .userNum(writer.getUserNum())
+                .userId(writer.getUserId())
+                .userName(writer.getUserName())
+                .userProfile(writer.getUserProfile())
+                .hashtags(profileHashtags)
+                .build();
+
+        return writerDto;
+    }
+
+    public BoardDto getBoardDto(Board board) {
+        List<Comment> commentList = commentRepository.findAllByBoardNum(board.getBoardNum());
+        List<CommentDto> comments = commentList.stream().map(comment -> {
+            MemberDto writerDto = getMemberDto(comment.getUserNum());
+
+            return CommentDto.builder()
+                    .commentNum(comment.getCommentNum())
+                    .boardNum(comment.getBoardNum())
+                    .userNum(comment.getUserNum())
+                    .writer(writerDto)
+                    .content(comment.getContent())
+                    .createDate(comment.getCreateDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                    .modifyDate((comment.getModifyDate() != null) ? comment.getModifyDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "N/A")
+                    .build();
+        }).toList();
+
+        // 해시태그 및 첨부파일 목록 조회
+        List<BoardHashtag> hashtags = hashtagRepository.findAllByBoardNum(board.getBoardNum());
+        List<Attachment> attachments = attachmentRepository.findAllByBoardNum(board.getBoardNum());
+
+        // 조회수 증가
+        boardRepository.updateReadCount(board.getBoardNum());
+        board.setReadCount(board.getReadCount() + 1);
+
+        Long likeCount = boardRepository.countLikeByBoardNum(board.getBoardNum());
+        String category = boardRepository.findCategoryByCategoryNum(board.getCategoryNum());
+        MemberDto writerDto = getMemberDto(board.getUserNum());
+
+        return BoardDto.builder()
+                .boardNum(board.getBoardNum())
+                .userNum(board.getUserNum())
+                .writer(writerDto)
+                .categoryNum(board.getCategoryNum())
+                .category(category)
+                .boardTitle(board.getBoardTitle())
+                .boardContent(board.getBoardContent())
+                .createDate(board.getCreateDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .modifyDate((board.getModifyDate() != null) ? board.getModifyDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "N/A")
+                .comments(comments)
+                .hashtags(hashtags)
+                .attachments(attachments)
+                .likeCount(likeCount)
+                .commentCount(Long.valueOf(comments.size()))
+                .readCount(board.getReadCount())
+                .build();
     }
 
 }

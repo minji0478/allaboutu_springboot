@@ -16,5 +16,5 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findAllByBoardNum(@Param("boardNum") Long boardNum);
 
     @Query("select max(c.commentNum) from Comment c")
-    public Long findMaxCommentNum();
+    Long findMaxCommentNum();
 }
