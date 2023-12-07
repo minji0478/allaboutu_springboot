@@ -57,9 +57,6 @@ public class Admin {
     @Column(name = "ACCOUNT")
     private String account;
 
-    @Column(name = "REPORT_COUNT")
-    private Long reportCount;
-
 //    @OneToMany
 //    @JoinColumn(name = "BOARD_NUM")  Dto 에서 사용하는 방법임!!
 //    private List<Board> board;
