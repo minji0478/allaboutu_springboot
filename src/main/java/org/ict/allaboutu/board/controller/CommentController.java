@@ -19,8 +19,7 @@ public class CommentController {
 
     @GetMapping
     public ResponseEntity<List<CommentDto>> getCommentList(@PathVariable Long boardNum) throws Exception {
-        List<CommentDto> list = commentService.getCommentList(boardNum);
-        return ResponseEntity.ok(list);
+        return ResponseEntity.ok(commentService.getCommentList(boardNum));
     }
 
     @PostMapping
@@ -34,7 +33,7 @@ public class CommentController {
     }
 
     @DeleteMapping("/{commentNum}")
-    public ResponseEntity<Void> deleteComment(@PathVariable Long commentNum) throws Exception {
+    public ResponseEntity<Void> deleteComment(@PathVariable Long boardNum, @PathVariable Long commentNum) throws Exception {
         commentService.deleteComment(commentNum);
         return ResponseEntity.noContent().build();
     }

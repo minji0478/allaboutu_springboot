@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.ict.allaboutu.board.domain.Attachment;
 import org.ict.allaboutu.board.domain.BoardHashtag;
+import org.ict.allaboutu.member.domain.Member;
+import org.ict.allaboutu.member.service.MemberDto;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -18,8 +20,7 @@ public class BoardDto {
 
     private Long boardNum;
     private Long userNum;
-    private String userId;
-    private String userName;
+    private MemberDto writer;
     private Long categoryNum;
     private String category;
     private String boardTitle;

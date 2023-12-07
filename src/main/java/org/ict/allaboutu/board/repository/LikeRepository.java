@@ -10,9 +10,9 @@ import org.springframework.stereotype.Repository;
 public interface LikeRepository extends JpaRepository<BoardLike, Long> {
 
     @Query("select l from BoardLike l where l.boardNum = :boardNum and l.userNum = :userNum")
-    public BoardLike findByBoardNumAndUserNum(@Param("boardNum") Long boardNum, @Param("userNum") Long userNum) throws Exception;
+    BoardLike findByBoardNumAndUserNum(@Param("boardNum") Long boardNum, @Param("userNum") Long userNum) throws Exception;
 
     @Query("select max(l.likeNum) from BoardLike l")
-    public Long findMaxLikeNum();
+    Long findMaxLikeNum();
 
 }
