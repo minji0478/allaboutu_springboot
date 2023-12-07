@@ -35,8 +35,6 @@ public class AdminDto implements Serializable {
 
     private LocalDateTime enrolleDate;
 
-    private Long reportCount;
-
     private Long reportNum;
 
     private String reportCause;

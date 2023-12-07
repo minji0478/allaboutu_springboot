@@ -38,11 +38,9 @@ dependencies {
 	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
-
+	// vue 없이 테스트가능한 디펜던시 : 스웨거
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
 	/**
-	 *    작성자 : 김정선
-	 *    추가 목적 : 메일 시스템 의존성 주입
-	 *    추가 날짜 : 2023. 11. 27
 	 *    Spring Boot Starter Mail : 메일 서버와 연결 해서 메일을 발송 하는데 필요한 라이브러리
 	 *    thymeleaf : thymeleaf 라이브러리
 	 *    jwt : Json Web Token 관련 라이브러리

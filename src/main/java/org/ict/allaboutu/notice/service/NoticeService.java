@@ -6,6 +6,7 @@ import org.ict.allaboutu.board.domain.Board;
 import org.ict.allaboutu.board.repository.BoardRepository;
 import org.ict.allaboutu.board.repository.CommentRepository;
 import org.ict.allaboutu.board.service.BoardDto;
+import org.ict.allaboutu.common.FileNameChange;
 import org.ict.allaboutu.member.domain.Member;
 import org.ict.allaboutu.member.repository.MemberRepository;
 import org.ict.allaboutu.notice.domain.Notice;
@@ -16,7 +17,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -72,14 +75,48 @@ public class NoticeService {
 //        return noticeRepository.(title);
 //    }
 
-    public Notice createNotice(Notice notice) {
+    public NoticeDto createNotice(Notice notice, MultipartFile file) {
 
         Long noticeNum = noticeRepository.findMaxNoticeNumber() + 1;
         notice.setNoticeNum(noticeNum);
-        notice.setWriteDate(LocalDateTime.now());
+        notice.setWriteDate(LocalDate.now());
         notice.setReadCount(0L);
-        return  noticeRepository.save(notice);
 
+        if(file != null){
+            String renameFileName = null;
+            try{
+                renameFileName = FileNameChange.change(file.getOriginalFilename(), "yyyyMMddHHmmss");
+                String savePath = System.getProperty("user.dir") + "/src/main/resources/notice_upload/";
+                File saveFile = new File(savePath, renameFileName);
+                file.transferTo(saveFile);
+                notice.setOriginalFileName(file.getOriginalFilename());
+                notice.setRenameFileName(renameFileName);
+            }catch(Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+        Notice saveNotice = noticeRepository.save(notice);
+
+        Member member = memberRepository.findById(notice.getUserNum()).get();
+        NoticeDto noticeDto = NoticeDto.builder()
+                .noticeNum(notice.getNoticeNum())
+                .userNum(member.getUserNum())
+                .userName(member.getUserName())
+                .noticeTitle(notice.getNoticeTitle())
+                .noticeContents(notice.getNoticeContents())
+                .cartegory(notice.getCartegory())
+                .eventStart(notice.getEventStart() !=null ? notice.getEventStart().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A")
+                .eventEnd(notice.getEventEnd()!=null ? notice.getEventEnd().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A")
+                .importance(notice.getImportance())
+                .importanceDate(notice.getImportanceDate()!=null ? notice.getImportanceDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A")
+                .writeDate(notice.getWriteDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+                .modifyDate(notice.getModifyDate() !=null ? notice.getModifyDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A")
+                .OriginalFileName(notice.getOriginalFileName())
+                .RenameFileName(notice.getRenameFileName())
+                .ReadCount(notice.getReadCount()).build();
+
+        return noticeDto;
     }
     public Notice noticeUp(@RequestBody Notice notice){
         return noticeRepository.save(notice);
@@ -91,8 +128,8 @@ public class NoticeService {
     }
 
     public Notice updateNotice(Long noticeNum, Notice updatedNotice) {
-        // 확인: 해당 noticeNum의 공지사항이 존재하는지 확인
-        Notice notice = noticeRepository.findById(noticeNum).orElse(null);
+            // 확인: 해당 noticeNum의 공지사항이 존재하는지 확인
+            Notice notice = noticeRepository.findById(noticeNum).orElse(null);
         if (notice == null) {
             // 존재하지 않으면 null 반환 또는 예외 처리
             return null;
@@ -107,6 +144,30 @@ public class NoticeService {
         return noticeRepository.save(notice);
     }
 
+
+    public NoticeDto getNoticeById(Long noticeNum) {
+
+        Optional<Notice> optionalNotice = noticeRepository.findById(noticeNum);
+
+        if (optionalNotice.isPresent()) {
+
+            Notice notice = optionalNotice.get();
+            notice.setReadCount(notice.getReadCount() + 1);
+            noticeRepository.save(notice);
+
+            Member member = memberRepository.findById(notice.getUserNum()).get();
+            return NoticeDto.builder()
+                    .noticeNum(notice.getNoticeNum())
+                    .userNum(member.getUserNum())
+                    .userName(member.getUserName())
+                    .ReadCount(notice.getReadCount())
+                    .build();
+        } else {
+
+            return null;
+        }
+    }
+
     public void deleteNotice(Long noticeNum) {
             // 확인: 해당 noticeNum의 공지사항이 존재하는지 확인
         Notice notice = noticeRepository.findById(noticeNum).orElse(null);
@@ -116,6 +177,9 @@ public class NoticeService {
         }
         // 존재하지 않아도 아무런 동작을 하지 않음 (에러를 발생시키거나 예외를 던지는 등의 처리도 가능)
     }
+
+
+
 
 
 }
