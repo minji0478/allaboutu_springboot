@@ -2,9 +2,11 @@ package org.ict.allaboutu.myPage.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.ict.allaboutu.member.domain.Member;
+import org.ict.allaboutu.myPage.service.MyPageDto;
 import org.ict.allaboutu.myPage.service.MyPageService;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -14,23 +16,18 @@ public class MyPageController {
 
     private MyPageService myPageService;
 
-//    @GetMapping("/{userId}")
-//    public ResponseEntity<MyPageDto> getMyPage(@PathVariable Long userId){
-//        MyPageDto myPageDto = myPageService.getMyPage(userId);
-//        return ResponseEntity.ok(myPageDto);
-//    }
+    @GetMapping("/myPage/{userNum}")
+    public ResponseEntity<MyPageDto> getMyPage(@PathVariable Long userNum){
+        MyPageDto myPageDto = myPageService.getMyPage(userNum);
+        return ResponseEntity.ok(myPageDto);
+    }
 
 
-//    @PatchMapping("/website/{userId}") //나중에 (website) myPage로 바꿔줘야함
-//    public ResponseEntity<MyPageDto> updateUser(@PathVariable Long userId, @RequestBody Member updateMember){
-//        MyPageDto myPageDto = myPageService.updateUser(userId).get();
-//
-//        // 수정할 필드만 업데이트
-//        member.setUserPwd(updateMember.getUserPwd());
-//        member.setUserPhone(updateMember.getUserPhone());
-//
-//        memberRepository.save(member);
-//        return ResponseEntity.ok(member);
-//    }
+    @PatchMapping("/myPage/{userNum}") //나중에 (website) myPage로 바꿔줘야함
+    public ResponseEntity<MyPageDto> updateUser(@PathVariable Long userNum, @RequestBody Member updateMember){
+        MyPageDto myPageDto = myPageService.updateUser(userNum,updateMember);
+
+        return ResponseEntity.ok(myPageDto);
+    }
 
 }
