@@ -15,21 +15,21 @@ import java.util.List;
 public interface BoardRepository extends JpaRepository<Board, Long> {
 
     @Query(value = "SELECT b FROM Board b WHERE b.deleteDate IS NULL ORDER BY b.boardNum DESC")
-    public Page<Board> findByDeleteDateIsNull(Pageable pageable);
+    Page<Board> findByDeleteDateIsNull(Pageable pageable);
 
     @Query(value = "SELECT MAX(b.boardNum) FROM Board b")
-    public Long findMaxBoardNum();
+    Long findMaxBoardNum();
 
     @Query(value = "SELECT COUNT(l) FROM BoardLike l WHERE l.boardNum = :boardNum")
-    public Long countLikeByBoardNum(@Param("boardNum") Long boardNum);
+    Long countLikeByBoardNum(@Param("boardNum") Long boardNum);
 
     @Modifying
     @Query(value = "UPDATE Board b SET b.readCount = b.readCount + 1 WHERE b.boardNum = :boardNum")
-    public void updateReadCount(@Param("boardNum") Long boardNum);
+    void updateReadCount(@Param("boardNum") Long boardNum);
 
     @Query(value = "SELECT bc.category FROM BoardCategory bc WHERE bc.categoryNum = :categoryNum")
-    public String findCategoryByCategoryNum(@Param("categoryNum") Long categoryNum);
+    String findCategoryByCategoryNum(@Param("categoryNum") Long categoryNum);
 
     @Query(value = "SELECT b FROM Board b WHERE b.deleteDate IS NULL ORDER BY b.readCount DESC")
-    public Page<Board> findBestBoards(Pageable pageable);
+    Page<Board> findBestBoards(Pageable pageable);
 }
