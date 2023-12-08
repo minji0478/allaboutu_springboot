@@ -49,8 +49,10 @@ public class BoardService {
         return boardDtoPage;
     }
 
-    public Board getBoardById(Long boardNum) throws Exception {
-        return boardRepository.findById(boardNum).get();
+    @Transactional
+    public BoardDto getBoardById(Long boardNum) throws Exception {
+        Board board = boardRepository.findById(boardNum).get();
+        return getBoardDto(board);
     }
 
     public BoardDto createBoard(Board board, List<String> hashtagList, List<MultipartFile> files) throws Exception {
@@ -123,6 +125,38 @@ public class BoardService {
         return boardDto;
     }
 
+    public BoardDto updateBoard(Board board, List<String> hashtagList, List<MultipartFile> files) throws Exception {
+
+        // Board 테이블 저장
+        Board oldBoard = boardRepository.findById(board.getBoardNum()).get();
+        board.setUserNum(oldBoard.getUserNum());
+        board.setCategoryNum(oldBoard.getCategoryNum());
+        board.setCreateDate(oldBoard.getCreateDate());
+        board.setModifyDate(LocalDateTime.now());
+        board.setReadCount(oldBoard.getReadCount());
+        Board savedBoard = boardRepository.save(board);
+
+        // BoardHashtagLink 테이블 업데이트
+        List<BoardHashtag> boardHashtags = updateHashtag(hashtagList, board.getBoardNum());
+
+        // Attachment 테이블 업데이트
+        deleteAttachment(board.getBoardNum());
+        List<Attachment> attachments = createAttachment(files, board.getBoardNum());
+
+        // BoardDto 객체 생성
+        BoardDto boardDto = BoardDto.builder()
+                .boardNum(savedBoard.getBoardNum())
+                .userNum(savedBoard.getUserNum())
+                .categoryNum(savedBoard.getCategoryNum())
+                .boardTitle(savedBoard.getBoardTitle())
+                .boardContent(savedBoard.getBoardContent())
+                .hashtags(boardHashtags)
+                .attachments(attachments)
+                .build();
+
+        return boardDto;
+    }
+
     public String uploadImage(MultipartFile file, int index) throws Exception {
         String originalFileName = file.getOriginalFilename();
         String renameFileName = null;
@@ -154,14 +188,19 @@ public class BoardService {
         return ReportRepository.save(report);
     }
 
+    @Transactional
     public Page<BoardDto> getBoardRank(Pageable pageable) {
         Page<Board> boardRankPage = boardRepository.findBestBoards(pageable);
 
-        Page<BoardDto> bpardRankDtoPage = boardRankPage.map(board -> {
+        Page<BoardDto> boardRankDtoPage = boardRankPage.map(board -> {
             return getBoardDto(board);
         });
 
-        return bpardRankDtoPage;
+        for (int i = 0; i < boardRankDtoPage.getContent().size(); i++) {
+            boardRankDtoPage.getContent().get(i).setRank(Long.valueOf(i + 1));
+        }
+
+        return boardRankDtoPage;
     }
 
     public MemberDto getMemberDto(Long userNum) {
@@ -179,6 +218,7 @@ public class BoardService {
         return writerDto;
     }
 
+    @Transactional
     public BoardDto getBoardDto(Board board) {
         List<Comment> commentList = commentRepository.findAllByBoardNum(board.getBoardNum());
         List<CommentDto> comments = commentList.stream().map(comment -> {
@@ -224,6 +264,100 @@ public class BoardService {
                 .commentCount(Long.valueOf(comments.size()))
                 .readCount(board.getReadCount())
                 .build();
+    }
+
+    // 해시태그 업데이트
+    public List<BoardHashtag> updateHashtag(List<String> hashtagList, Long boardNum) throws Exception {
+        List<BoardHashtag> boardHashtags = new ArrayList<>();
+
+        // hashtagList와 oldHashtags(기존 해시태그 리스트)를 비교하여,
+        // 1. hashtagList와 oldHashtags에 모두 존재하는 해시태그는 건너뜀.
+        // 2. hashtagList에만 존재하는 해시태그는 링크 테이블에 저장.
+        // 3. oldHashtags에만 존재하는 해시태그는 링크 테이블에서 삭제.
+        List<BoardHashtag> oldHashtags = hashtagRepository.findAllByBoardNum(boardNum);
+        if (hashtagList != null) {
+            for (String hashtag : hashtagList) {
+                BoardHashtag boardHashtag = hashtagRepository.findByHashtag(hashtag);
+                if (boardHashtag == null) {
+                    // 존재하지 않는 해시태그라면 해시태그 생성 및 DB 저장
+                    boardHashtag = new BoardHashtag();
+
+                    Long maxHashtagNum = hashtagRepository.findMaxHashtagNum();
+                    boardHashtag.setHashtagNum(maxHashtagNum == null ? 1 : maxHashtagNum + 1);
+                    boardHashtag.setHashtag(hashtag);
+                    hashtagRepository.save(boardHashtag);
+                }
+                boardHashtags.add(boardHashtag);
+
+                if (oldHashtags != null) {
+                    if (oldHashtags.contains(boardHashtag)) {
+                        // 1. 기존에 존재하는 해시태그는 건너뜀
+                        continue;
+                    } else {
+                        // 2. 새로 추가된 해시태그는 링크 테이블에 저장
+                        BoardHashtagLinkPK linkPK = new BoardHashtagLinkPK(boardNum, boardHashtag.getHashtagNum());
+                        BoardHashtagLink link = new BoardHashtagLink(linkPK);
+                        boardHashtagLinkRepository.save(link);
+                    }
+                }
+            }
+        }
+
+        // 3. 기존 해시태그 리스트에서 hashtagList에 없는 해시태그는 링크 테이블에서 삭제
+        if (oldHashtags != null) {
+            for (BoardHashtag oldHashtag : oldHashtags) {
+                if (hashtagList == null || !hashtagList.contains(oldHashtag.getHashtag())) {
+                    BoardHashtagLinkPK linkPK = new BoardHashtagLinkPK(boardNum, oldHashtag.getHashtagNum());
+                    boardHashtagLinkRepository.deleteById(linkPK);
+                }
+            }
+        }
+
+        return boardHashtags;
+    }
+
+    // 첨부파일 테이블 등록
+    public List<Attachment> createAttachment(List<MultipartFile> files, Long boardNum) throws Exception {
+        List<Attachment> attachments = new ArrayList<>();
+
+        if (files != null) {
+            int idx = 0;
+            for (MultipartFile file : files) {
+                try {
+                    // 파일 업로드
+                    String renameFileName = uploadImage(file, idx);
+
+                    // 업로드 성공 시 DB 저장
+                    Attachment attachment = Attachment.builder()
+                            .id(new AttachmentPK(boardNum, Long.valueOf(idx)))
+                            .originalFileName(file.getOriginalFilename())
+                            .renameFileName(renameFileName)
+                            .build();
+
+                    attachmentRepository.save(attachment);
+
+                    attachments.add(attachment);
+                    idx++;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return attachments;
+    }
+
+    // 첨부파일 삭제
+    public void deleteAttachment(Long boardNum) throws Exception {
+        List<Attachment> oldAttachments = attachmentRepository.findAllByBoardNum(boardNum);
+
+        if (oldAttachments != null) {
+            for (Attachment oldAttachment : oldAttachments) {
+                String savePath = System.getProperty("user.dir") + "/src/main/resources/board_upload/";
+                File deleteFile = new File(savePath + oldAttachment.getRenameFileName());
+                deleteFile.delete();
+            }
+        }
     }
 
 }
