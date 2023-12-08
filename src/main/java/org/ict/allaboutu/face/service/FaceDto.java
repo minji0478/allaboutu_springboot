@@ -10,5 +10,5 @@ import lombok.*;
 @ToString
 @Builder
 public class FaceDto {
-
+    private Long userNum;
 }

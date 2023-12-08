@@ -21,7 +21,7 @@ public class Website {
     private Long webNum;
 
     @Column(name = "COLOR_NUM")
-    private String colorNum;
+    private Long colorNum;
 
     @Column(name = "WEB_IMG")
     private String webImg;
