@@ -1,5 +1,6 @@
 package org.ict.allaboutu.notice.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.allaboutu.board.domain.Board;
@@ -61,19 +62,74 @@ public class NoticeService {
                     .importanceDate(notice.getImportanceDate()!=null ? notice.getImportanceDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A")
                     .writeDate(notice.getWriteDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
                     .modifyDate(notice.getModifyDate() !=null ? notice.getModifyDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A")
-                    .OriginalFileName(notice.getOriginalFileName())
-                    .RenameFileName(notice.getRenameFileName())
-                    .ReadCount(notice.getReadCount())
+                    .originalFileName(notice.getOriginalFileName())
+                    .renameFileName(notice.getRenameFileName())
+                    .readCount(notice.getReadCount())
                     .build();
         });
         return  noticeDtoList;
 
-
     }
 
-//    public List<Notice> searchByTitle(String title) {
-//        return noticeRepository.(title);
-//    }
+    public List<NoticeDto> getImportantNotice() {
+        List<Notice> notices = noticeRepository.findImportantNotice();
+        List<NoticeDto> noticeDtoList = notices.stream().map(notice -> {
+            Member member = memberRepository.findById(notice.getUserNum()).get();
+
+            return NoticeDto.builder()
+                    .noticeNum(notice.getNoticeNum())
+                    .userNum(member.getUserNum())
+                    .userName(member.getUserName())
+                    .noticeTitle(notice.getNoticeTitle())
+                    .noticeContents(notice.getNoticeContents())
+                    .cartegory(notice.getCartegory())
+                    .eventStart(notice.getEventStart() !=null ? notice.getEventStart().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A")
+                    .eventEnd(notice.getEventEnd()!=null ? notice.getEventEnd().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A")
+                    .importance(notice.getImportance())
+                    .importanceDate(notice.getImportanceDate()!=null ? notice.getImportanceDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A")
+                    .writeDate(notice.getWriteDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+                    .modifyDate(notice.getModifyDate() !=null ? notice.getModifyDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A")
+                    .originalFileName(notice.getOriginalFileName())
+                    .renameFileName(notice.getRenameFileName())
+                    .readCount(notice.getReadCount())
+                    .build();
+        }).toList();
+
+        return  noticeDtoList;
+    }
+
+
+
+    public List<NoticeDto> searchByTitle(String title) {
+        List<Notice> notices = noticeRepository.searchByTitle(title);
+        List<NoticeDto> noticeDtoList = notices.stream().map(notice -> {
+            Member member = memberRepository.findById(notice.getUserNum()).get();
+            if (member == null) {
+                // 예외 처리 또는 기본값 설정 등을 수행할 수 있습니다.
+                return null;
+            }
+
+            return NoticeDto.builder()
+                    .noticeNum(notice.getNoticeNum())
+                    .userNum(member.getUserNum())
+                    .userName(member.getUserName())
+                    .noticeTitle(notice.getNoticeTitle())
+                    .noticeContents(notice.getNoticeContents())
+                    .cartegory(notice.getCartegory())
+                    .eventStart(notice.getEventStart() != null ? notice.getEventStart().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A")
+                    .eventEnd(notice.getEventEnd() != null ? notice.getEventEnd().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A")
+                    .importance(notice.getImportance())
+                    .importanceDate(notice.getImportanceDate() != null ? notice.getImportanceDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A")
+                    .writeDate(notice.getWriteDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+                    .modifyDate(notice.getModifyDate() != null ? notice.getModifyDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A")
+                    .originalFileName(notice.getOriginalFileName())
+                    .renameFileName(notice.getRenameFileName())
+                    .readCount(notice.getReadCount())
+                    .build();
+        }).toList();
+
+        return noticeDtoList;
+    }
 
     public NoticeDto createNotice(Notice notice, MultipartFile file) {
 
@@ -110,11 +166,11 @@ public class NoticeService {
                 .eventEnd(notice.getEventEnd()!=null ? notice.getEventEnd().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A")
                 .importance(notice.getImportance())
                 .importanceDate(notice.getImportanceDate()!=null ? notice.getImportanceDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A")
-                .writeDate(notice.getWriteDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+                        .writeDate(notice.getWriteDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
                 .modifyDate(notice.getModifyDate() !=null ? notice.getModifyDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A")
-                .OriginalFileName(notice.getOriginalFileName())
-                .RenameFileName(notice.getRenameFileName())
-                .ReadCount(notice.getReadCount()).build();
+                .originalFileName(notice.getOriginalFileName())
+                .renameFileName(notice.getRenameFileName())
+                .readCount(notice.getReadCount()).build();
 
         return noticeDto;
     }
@@ -122,9 +178,31 @@ public class NoticeService {
         return noticeRepository.save(notice);
     }
 
-    public Notice getByNoticeId(Long noticeNum) {
+    @Transactional
+    public NoticeDto getByNoticeId(Long noticeNum) {
         Notice notice = noticeRepository.findById(noticeNum).get();
-        return notice; // 또는 필요한 경우 사용자 정의 예외를 throw
+
+        NoticeDto noticeDto = null;
+
+        if (notice != null) {
+            noticeRepository.updateReadCount(noticeNum);
+            notice.setReadCount(notice.getReadCount() + 1);
+
+            Member member = memberRepository.findById(notice.getUserNum()).get();
+
+             noticeDto = NoticeDto.builder()
+                    .noticeNum(notice.getNoticeNum())
+                    .userNum(member.getUserNum())
+                    .userName(member.getUserName())
+                    .readCount(notice.getReadCount())
+                    .writeDate(notice.getWriteDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+                     .noticeContents(notice.getNoticeContents())
+                    .renameFileName(notice.getRenameFileName())
+                    .build();
+
+        }
+
+        return noticeDto; // 또는 필요한 경우 사용자 정의 예외를 throw
     }
 
     public Notice updateNotice(Long noticeNum, Notice updatedNotice) {
@@ -144,30 +222,6 @@ public class NoticeService {
         return noticeRepository.save(notice);
     }
 
-
-    public NoticeDto getNoticeById(Long noticeNum) {
-
-        Optional<Notice> optionalNotice = noticeRepository.findById(noticeNum);
-
-        if (optionalNotice.isPresent()) {
-
-            Notice notice = optionalNotice.get();
-            notice.setReadCount(notice.getReadCount() + 1);
-            noticeRepository.save(notice);
-
-            Member member = memberRepository.findById(notice.getUserNum()).get();
-            return NoticeDto.builder()
-                    .noticeNum(notice.getNoticeNum())
-                    .userNum(member.getUserNum())
-                    .userName(member.getUserName())
-                    .ReadCount(notice.getReadCount())
-                    .build();
-        } else {
-
-            return null;
-        }
-    }
-
     public void deleteNotice(Long noticeNum) {
             // 확인: 해당 noticeNum의 공지사항이 존재하는지 확인
         Notice notice = noticeRepository.findById(noticeNum).orElse(null);
@@ -177,9 +231,5 @@ public class NoticeService {
         }
         // 존재하지 않아도 아무런 동작을 하지 않음 (에러를 발생시키거나 예외를 던지는 등의 처리도 가능)
     }
-
-
-
-
 
 }

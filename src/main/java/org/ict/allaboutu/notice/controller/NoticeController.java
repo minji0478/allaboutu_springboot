@@ -27,7 +27,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/notice")
+@RequestMapping("/notices")
 public class NoticeController {
 
    private final NoticeService noticeService;
@@ -40,22 +40,23 @@ public class NoticeController {
         return ResponseEntity.ok(list);
     }
 
-//    @GetMapping("/search")
-//    public ResponseEntity<List<Notice>> searchByTitle(@RequestParam String title) {
-//        List<Notice> searchResults = noticeService.searchByTitle(title);
-//
-//        if (!searchResults.isEmpty()) {
-//            return ResponseEntity.ok(searchResults);
-//        } else {
-//            return ResponseEntity.notFound().build();
-//        }
-//    }
 
+    @GetMapping("/imp")   //필독공지
+    public ResponseEntity<List<NoticeDto>> getImportantNotice() {
+        List<NoticeDto> notices = noticeService.getImportantNotice();
+        return ResponseEntity.ok(notices);
+    }
+
+//    @GetMapping("/search")
+//    public ResponseEntity<List<NoticeDto>> searchByTitle(@RequestParam String title) {
+//        List<NoticeDto> result = noticeService.searchByTitle(title);
+//        return ResponseEntity.ok(result);
+//    }
     @GetMapping("/detail/{noticeNum}")
-    public ResponseEntity<Notice> getNotice(@PathVariable Long noticeNum) throws Exception {
-        Notice notice = noticeService.getByNoticeId(noticeNum);
-            if (notice != null) {
-                return ResponseEntity.ok(notice);
+    public ResponseEntity<NoticeDto> getNotice(@PathVariable Long noticeNum) throws Exception {
+        NoticeDto noticeDto = noticeService.getByNoticeId(noticeNum);
+            if (noticeDto != null) {
+                return ResponseEntity.ok(noticeDto);
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -79,19 +80,19 @@ public class NoticeController {
     }
 
     @PatchMapping("/{noticeNum}")
-    public ResponseEntity<Notice> updateNotice(@PathVariable Long noticeNum, @RequestBody Notice updatedNotice) {
-        Notice notice = noticeService.getByNoticeId(noticeNum);
+    public ResponseEntity<NoticeDto> updateNotice(@PathVariable Long noticeNum, @RequestBody Notice updatedNotice) {
+        NoticeDto noticeDto = noticeService.getByNoticeId(noticeNum);
 
-        if (notice != null) {
+        if (noticeDto != null) {
             // 기존 공지사항의 필드를 updatedNotice의 값으로 업데이트
-            notice.setNoticeTitle(updatedNotice.getNoticeTitle());
-            notice.setNoticeContents(updatedNotice.getNoticeContents());
+            noticeDto.setNoticeTitle(updatedNotice.getNoticeTitle());
+            noticeDto.setNoticeContents(updatedNotice.getNoticeContents());
             // 업데이트하고자 하는 다른 필드 추가
 
             // 업데이트된 공지사항 저장
             noticeService.updateNotice(noticeNum, updatedNotice);
 
-            return ResponseEntity.ok(notice);
+            return ResponseEntity.ok(noticeDto);
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -99,17 +100,20 @@ public class NoticeController {
 
     @DeleteMapping("/{noticeNum}")
     public ResponseEntity<Void> deleteNotice(@PathVariable Long noticeNum) {
-//        Notice existingNotice = noticeService.getByNoticeId(noticeNum);
-//
-//        if (existingNotice != null) {
-//            noticeService.deleteNotice(noticeNum);
-//            return ResponseEntity.noContent().build();
-//        } else {
-//            return ResponseEntity.notFound().build();
-//        }
+
         noticeService.deleteNotice(noticeNum);
         return ResponseEntity.noContent().build();
     }
 
+    //    @GetMapping("/search")
+//    public ResponseEntity<List<Notice>> searchByTitle(@RequestParam String title) {
+//        List<Notice> searchResults = noticeService.searchByTitle(title);
+//
+//        if (!searchResults.isEmpty()) {
+//            return ResponseEntity.ok(searchResults);
+//        } else {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
 
 }

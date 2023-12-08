@@ -43,11 +43,11 @@ public class Notice {
     private LocalDate writeDate;
     @Column(name="modify_date")
     private LocalDateTime modifyDate;
-    @Column(name="originalFileName")
+    @Column(name="original_file_name")
     private String originalFileName;
-    @Column(name="renameFileName")
+    @Column(name="rename_file_name")
     private String renameFileName;
-    @Column(name="readCount")
+    @Column(name="read_count")
     private Long readCount;
 
 }
