@@ -25,8 +25,8 @@ public class NoticeDto {
     private String importanceDate;
     private String writeDate;
     private String modifyDate;
-    private String OriginalFileName;
-    private String RenameFileName;
-    private Long ReadCount;
+    private String originalFileName;
+    private String renameFileName;
+    private Long readCount;
 
 }
