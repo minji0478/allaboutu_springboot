@@ -42,7 +42,7 @@ public class BoardController {
 
     // 게시글 상세 조회
     @GetMapping("/{boardNum}")
-    public ResponseEntity<Board> getBoardById(@PathVariable Long boardNum) throws Exception {
+    public ResponseEntity<BoardDto> getBoardById(@PathVariable Long boardNum) throws Exception {
         return ResponseEntity.ok(boardService.getBoardById(boardNum));
     }
 
@@ -64,6 +64,15 @@ public class BoardController {
             @RequestPart(value = "attachments", required = false) List<MultipartFile> files
     ) throws Exception {
         return ResponseEntity.ok(boardService.createBoard(board, hashtagList, files));
+    }
+
+    @PatchMapping("/{boardNum}")
+    public ResponseEntity<BoardDto> updateBoard(
+            @RequestPart("board") Board board,
+            @RequestPart(value = "hashtags", required = false) List<String> hashtagList,
+            @RequestPart(value = "attachments", required = false) List<MultipartFile> files
+    ) throws Exception {
+        return ResponseEntity.ok(boardService.updateBoard(board, hashtagList, files));
     }
 
     // 게시글 삭제

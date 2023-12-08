@@ -10,7 +10,7 @@ import jakarta.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "ph")
+@Table(name = "profile_hashtag")
 public class ProfileHashtag {
     @Id
     @Column(name = "HASHTAG_NUM")

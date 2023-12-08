@@ -17,20 +17,13 @@ import java.util.List;
 @RequestMapping
 public class AdminController {
     private final AdminService adminService;
-    @GetMapping("/admin")
+    @GetMapping("/admin/get")
     public ResponseEntity<List<AdminDto>> getMemberList() throws Exception{
 //        pageable = PageRequest.of(0, 10, Sort.by("userNum").descending());
 //        Page<AdminDto> list = adminService.getMemberList(pageable);
         List<AdminDto> list = adminService.getMemberList();
         return ResponseEntity.ok(list);
     }
-
-//    @GetMapping("/reports")
-//    public ResponseEntity<Page<AdminDto>> getReportList(@PageableDefault(sort = {"boardNum"}) Pageable pageable) throws Exception{
-//        pageable = PageRequest.of(0, 10, Sort.by("boardNum").descending());
-//        Page<AdminDto> list = adminService.getReportList(pageable);
-//        return ResponseEntity.ok(list);
-//    }
 
     @GetMapping("/reports")
     public ResponseEntity<List<AdminDto>> getReportList() throws Exception {
