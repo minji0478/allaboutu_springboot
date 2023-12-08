@@ -72,39 +72,44 @@ public class StyleController {
 
     //다끝나고 파일 인서트 하기
     @PostMapping(value = "/insert", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<Style> uploadImage(@ModelAttribute StyleDto styleDto, @RequestParam("file") MultipartFile file) {
-
-        System.out.println("file : " + file);
-        if (file != null) {
-
-            // 이미지 파일만 업로드
-            if (!Objects.requireNonNull(file.getContentType()).startsWith("image")) {
-                log.warn("this file is not image type");
-                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-            }
-
-            String originalFileName = file.getOriginalFilename();
-            String renameFileName = FileNameChange.change(originalFileName, "yyyyMMddHHmmss");
-            String savePath = System.getProperty("img.upload-dir") + "/src/main/resources/board_upload/";
-
-            System.out.println("style savePath : " + savePath);
-
-            try {
-                file.transferTo(new File(renameFileName));
-                System.out.println(originalFileName + " 파일 업로드 성공 - renameFileName=" + renameFileName);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
+    public ResponseEntity<Style> uploadImage(@ModelAttribute StyleDto styleDto) {
+        System.out.println("styleDto : " + styleDto);
         return ResponseEntity.ok(styleService.insertStyle(styleDto));
     }
     // 이미지 가져오기
     @GetMapping("/image/{imageName}")
     public ResponseEntity<Resource> getImage(@PathVariable String imageName) throws Exception {
-        Resource resource = new ClassPathResource("/board_upload/" + imageName);
-        return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_JPEG)
-                .body(new InputStreamResource(resource.getInputStream()));
+        Resource resource = null;
+        int retryCount = 0;
+        boolean imageFound = false;
+
+        int RETRY_DELAY = 500;
+        int MAX_RETRY_COUNT = 50;
+
+        while (!imageFound && retryCount < MAX_RETRY_COUNT) {
+            try {
+                resource = new ClassPathResource("/style_upload/" + imageName);
+                if (resource.exists()) {
+                    imageFound = true;
+                }
+            } catch (Exception e) {
+                // Handle exception, if needed
+            }
+
+            if (!imageFound) {
+                // Wait for a certain period before retrying
+                Thread.sleep(RETRY_DELAY);
+                retryCount++;
+            }
+        }
+
+        if (imageFound) {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.IMAGE_JPEG)
+                    .body(new InputStreamResource(resource.getInputStream()));
+        } else {
+            // Image not found, return an appropriate response
+            return ResponseEntity.notFound().build();
+        }
     }
 }

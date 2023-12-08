@@ -7,7 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-
+@Builder
 public class MyPageDto {
     private Long userNum;
 

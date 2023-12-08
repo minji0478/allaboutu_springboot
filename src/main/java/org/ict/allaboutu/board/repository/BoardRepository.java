@@ -30,6 +30,8 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
     @Query(value = "SELECT bc.category FROM BoardCategory bc WHERE bc.categoryNum = :categoryNum")
     String findCategoryByCategoryNum(@Param("categoryNum") Long categoryNum);
 
-    @Query(value = "SELECT b FROM Board b WHERE b.deleteDate IS NULL ORDER BY b.readCount DESC")
+    @Query(value = "SELECT b FROM Board b " +
+            "WHERE b.deleteDate IS NULL " +
+            "ORDER BY b.readCount DESC")
     Page<Board> findBestBoards(Pageable pageable);
 }

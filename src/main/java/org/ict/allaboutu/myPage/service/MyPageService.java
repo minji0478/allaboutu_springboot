@@ -1,46 +1,48 @@
 package org.ict.allaboutu.myPage.service;
 
 import jakarta.transaction.Transactional;
-import org.apache.groovy.util.BeanUtils;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.ict.allaboutu.member.domain.Member;
 import org.ict.allaboutu.member.repository.MemberRepository;
 import org.ict.allaboutu.myPage.repository.MyPageRepository;
 import org.springframework.stereotype.Service;
 
+@Slf4j
+@RequiredArgsConstructor
 @Service
 public class MyPageService {
-    private final MyPageRepository myPageRepository;
 
-    public MyPageService(MyPageRepository myPageRepository){
-        this.myPageRepository = myPageRepository;
-    }
+    private final MemberRepository memberRepository;
 
-    private MemberRepository memberRepository;
-
-    public MyPageDto getMyPage(Long userId){
-        Member member = memberRepository.findById(userId).get();
+    public MyPageDto getMyPage(Long userNum){
+        Member member = memberRepository.findById(userNum).get();
         if (member == null){
             return null;
         }
-        MyPageDto myPageDto = new MyPageDto();
-        myPageDto.setUserNum(member.getUserNum());
-        myPageDto.setUserName(member.getUserName());
-        myPageDto.setUserPwd(member.getUserPwd());
-        myPageDto.setUserEmail(member.getUserEmail());
-        myPageDto.setUserPhone(member.getUserPhone());
+        MyPageDto myPageDto = MyPageDto.builder()
+                .userId(member.getUserId())
+                .userName(member.getUserName())
+                .userPwd(member.getUserPwd())
+                .userEmail(member.getUserEmail())
+                .userPhone(member.getUserPhone())
+                .build();
         return myPageDto;
 
     }
 
-//    @Transactional
-//    public MyPageDto updateUser(Long userId, String userPhone, String userPwd) {
-//        Member member = myPageRepository.findById(userId).get();
-//        if(member != null){
-//            member.setUserPhone(userPhone);
-//            member.setUserPwd(userPwd);
-//            myPageRepository.save(member);
-//        }
-//        return myPageDto;
-//    }
+    @Transactional
+    public MyPageDto updateUser(Long userNum, Member updateMember) {
+        Member member = memberRepository.findById(userNum).get();
+
+        if (member == null){
+            return null;
+        }
+        MyPageDto myPageDto = MyPageDto.builder()
+                .userPwd(member.getUserPwd())
+                .userPhone(member.getUserPhone())
+                .build();
+        return myPageDto;
+    }
 
 }
