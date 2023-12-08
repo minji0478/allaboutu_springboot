@@ -24,4 +24,5 @@ public class CodyDto {
 
     private List goodsList;
     private List codyImgList;
+    private int codyCount;
 }

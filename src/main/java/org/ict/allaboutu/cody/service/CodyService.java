@@ -37,10 +37,10 @@ public class CodyService {
     private final GoodsRepository goodsRepository;
 
     @Transactional
-    public Page<CodyDto> getCodyList(Pageable pageable) {
+    public Page<CodyDto> getCodyList(Pageable pageable, long formNum) {
         System.out.println("==pageable : " + pageable);
-        Page<Cody> codyEntities = codyRepository.findAll(pageable);
-
+        Page<Cody> codyEntities = codyRepository.findAllByFormNum(pageable, formNum);
+        int codyCount = codyRepository.countByStyleNum(formNum);
         System.out.println("==codyEntities : " + codyEntities);
 
         Page<CodyDto> codyDtoPage = codyEntities.map(codyEntity -> {
@@ -62,6 +62,7 @@ public class CodyService {
                     .modelWeight(codyEntity.getModelWeight())
                     .codyImgList(codyImgList)
                     .goodsList(goodsList)
+                    .codyCount(codyCount)
                     .build();
         });
         System.out.println("codyDtoPage : " + codyDtoPage);
