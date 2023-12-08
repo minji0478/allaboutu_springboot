@@ -1,17 +1,20 @@
 package org.ict.allaboutu.personalcolor.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.*;
 
-import java.sql.Date;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
+@Builder
 @Table(name = "USER_PERSONAL_COLOR")
 public class UserPersonalColor {
     @Id
@@ -25,10 +28,11 @@ public class UserPersonalColor {
     private Long personalNum;
 
     @Column(name = "PERSONAL_DATE")
-    @JsonFormat(pattern = "yyyy/MM/dd")
-    private Date personalDate;
+    private LocalDateTime personalDate;
 
     @Column(name = "PERSONAL_IMG")
     private String personalImg;
 
+    @Column(name = "PERSONAL_REIMG")
+    private String personalReimg;
 }
