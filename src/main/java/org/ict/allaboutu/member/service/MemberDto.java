@@ -1,10 +1,17 @@
 package org.ict.allaboutu.member.service;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.ict.allaboutu.member.domain.ProfileHashtag;
-import org.ict.allaboutu.member.domain.ProfileHashtagLink;
 
 import java.util.List;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class MemberDto {
     private Long userNum;
     private String userId;
