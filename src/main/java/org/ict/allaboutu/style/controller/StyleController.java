@@ -34,7 +34,7 @@ import java.util.Objects;
 public class StyleController {
 
     private final StyleService styleService;
-    
+
     //사진 업로드 폴더에 넣고 그 사진으로 파이썬에 요청해야 함
     @PostMapping(value = "/upload", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<String[]> uploadImage(@RequestParam("file") MultipartFile file) {
@@ -71,8 +71,8 @@ public class StyleController {
     }
 
     //다끝나고 파일 인서트 하기
-    @PostMapping(value = "/insert", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<Style> uploadImage(@ModelAttribute StyleDto styleDto) {
+    @PostMapping("/insert")
+    public ResponseEntity<Style> insertUserStyle(@RequestBody StyleDto styleDto) {
         System.out.println("styleDto : " + styleDto);
         return ResponseEntity.ok(styleService.insertStyle(styleDto));
     }
@@ -84,11 +84,12 @@ public class StyleController {
         boolean imageFound = false;
 
         int RETRY_DELAY = 500;
-        int MAX_RETRY_COUNT = 50;
+        int MAX_RETRY_COUNT = 500;
 
         while (!imageFound && retryCount < MAX_RETRY_COUNT) {
             try {
                 resource = new ClassPathResource("/style_upload/" + imageName);
+                System.out.println("retryCount : " + retryCount);
                 if (resource.exists()) {
                     imageFound = true;
                 }

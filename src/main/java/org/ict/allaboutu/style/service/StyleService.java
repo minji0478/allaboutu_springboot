@@ -53,9 +53,10 @@ public class StyleService {
 
     public Style insertStyle(StyleDto styleDto) {
         Long maxStyleNum = styleRepository.findMaxStyleNum();
+        System.out.println("maxStyleNum : " + maxStyleNum);
 
         Style style = Style.builder()
-                .styleNum(maxStyleNum == null ? 1 : maxStyleNum + 1)
+                .styleNum(maxStyleNum == null || maxStyleNum == 0 ? 1 : maxStyleNum + 1)
                 .userNum(styleDto.getUserNum())
                 .formNum(styleDto.getFormNum())
                 .userImg(styleDto.getUserImg())
