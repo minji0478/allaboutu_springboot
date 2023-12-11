@@ -28,7 +28,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/auth/login").permitAll()
+                                .requestMatchers("/auth/login","/ws").permitAll()
                                 .anyRequest().permitAll()
                 )
                 .sessionManagement((sessionManagement) ->
