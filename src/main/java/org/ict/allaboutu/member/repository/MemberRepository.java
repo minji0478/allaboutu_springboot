@@ -16,4 +16,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     public String findUserIdByUserNum(@Param("userNum") Long userNum);
 
     Member findByUserId(String userId);
+
+    @Query(value = "SELECT MAX(m.userNum) FROM Member m")
+    Long findMaxUserNum();
 }
