@@ -33,6 +33,7 @@ public class AuthController {
         System.out.println("\n\nlogin 테스트 1 : " + member.getUserPwd());
         return ResponseEntity.ok(authService.authenticate(member));
     }
+
     @PostMapping("/refresh-token")
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         authService.refreshToken(request, response);
