@@ -1,12 +1,8 @@
 package org.ict.allaboutu.notice.controller;
 
-import jakarta.mail.Quota;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.ict.allaboutu.board.domain.Board;
-import org.ict.allaboutu.board.service.BoardDto;
 import org.ict.allaboutu.notice.domain.Notice;
-import org.ict.allaboutu.notice.repository.NoticeRepository;
 import org.ict.allaboutu.notice.service.NoticeDto;
 import org.ict.allaboutu.notice.service.NoticeService;
 import org.springframework.core.io.ClassPathResource;
@@ -30,7 +26,15 @@ import java.util.List;
 @RequestMapping("/notices")
 public class NoticeController {
 
-   private final NoticeService noticeService;
+    private final NoticeService noticeService;
+
+//    @GetMapping
+//    public ResponseEntity<Page<NoticeDto>> getNoticeList(@PageableDefault(sort = {"noticeNum"}) Pageable pageable) throws Exception {
+//        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("noticeNum").descending());
+//        Page<NoticeDto> list = noticeService.getNoticeList(pageable);
+//        log.info("getNoticeList 결과 : " + list);
+//        return ResponseEntity.ok(list);
+//    }
 
     @GetMapping
     public ResponseEntity<Page<NoticeDto>> getNoticeList(@PageableDefault(sort = {"noticeNum"}) Pageable pageable) throws Exception {
@@ -40,23 +44,17 @@ public class NoticeController {
         return ResponseEntity.ok(list);
     }
 
-
     @GetMapping("/imp")   //필독공지
     public ResponseEntity<List<NoticeDto>> getImportantNotice() {
         List<NoticeDto> notices = noticeService.getImportantNotice();
         return ResponseEntity.ok(notices);
     }
 
-//    @GetMapping("/search")
-//    public ResponseEntity<List<NoticeDto>> searchByTitle(@RequestParam String title) {
-//        List<NoticeDto> result = noticeService.searchByTitle(title);
-//        return ResponseEntity.ok(result);
-//    }
     @GetMapping("/detail/{noticeNum}")
     public ResponseEntity<NoticeDto> getNotice(@PathVariable Long noticeNum) throws Exception {
         NoticeDto noticeDto = noticeService.getByNoticeId(noticeNum);
-            if (noticeDto != null) {
-                return ResponseEntity.ok(noticeDto);
+        if (noticeDto != null) {
+            return ResponseEntity.ok(noticeDto);
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -73,29 +71,19 @@ public class NoticeController {
     @PostMapping
     public ResponseEntity<NoticeDto> createNotice(
             @RequestPart("notice") Notice notice,
-            @RequestPart(value="file", required = false) MultipartFile file) throws Exception {
+            @RequestPart(value = "file", required = false) MultipartFile file) throws Exception {
 
         return ResponseEntity.ok(noticeService.createNotice(notice, file));
 
     }
 
     @PatchMapping("/{noticeNum}")
-    public ResponseEntity<NoticeDto> updateNotice(@PathVariable Long noticeNum, @RequestBody Notice updatedNotice) {
-        NoticeDto noticeDto = noticeService.getByNoticeId(noticeNum);
+    public ResponseEntity<NoticeDto> updateNotice(
+            @RequestPart("notice") Notice notice,
+            @RequestPart(value = "file", required = false) MultipartFile file
+    ) throws Exception {
+        return ResponseEntity.ok(noticeService.updateNotice(notice, file));
 
-        if (noticeDto != null) {
-            // 기존 공지사항의 필드를 updatedNotice의 값으로 업데이트
-            noticeDto.setNoticeTitle(updatedNotice.getNoticeTitle());
-            noticeDto.setNoticeContents(updatedNotice.getNoticeContents());
-            // 업데이트하고자 하는 다른 필드 추가
-
-            // 업데이트된 공지사항 저장
-            noticeService.updateNotice(noticeNum, updatedNotice);
-
-            return ResponseEntity.ok(noticeDto);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
     }
 
     @DeleteMapping("/{noticeNum}")
@@ -105,15 +93,12 @@ public class NoticeController {
         return ResponseEntity.noContent().build();
     }
 
-    //    @GetMapping("/search")
-//    public ResponseEntity<List<Notice>> searchByTitle(@RequestParam String title) {
-//        List<Notice> searchResults = noticeService.searchByTitle(title);
-//
-//        if (!searchResults.isEmpty()) {
-//            return ResponseEntity.ok(searchResults);
-//        } else {
-//            return ResponseEntity.notFound().build();
-//        }
-//    }
-
+    @GetMapping("/search")
+    public ResponseEntity<Page<NoticeDto>> searchNoticesByKeyword(
+            @RequestParam("searchType") String searchType,
+            @RequestParam("keyword") String keyword,
+            @PageableDefault(sort = {"noticeNum"}) Pageable pageable ) {
+        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("noticeNum").descending());
+        return ResponseEntity.ok(noticeService.searchNoticesByKeyword(searchType, keyword , pageable));
+    }
 }
