@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URLDecoder;
 import java.util.List;
 
 @Slf4j
@@ -55,6 +56,17 @@ public class BoardController {
         return ResponseEntity.ok(boardService.getBoardRank(pageable));
     }
 
+    // 해시태그 검색
+    @GetMapping("/search/{keyword}")
+    public ResponseEntity<Page<BoardDto>> searchBoard(
+            @PathVariable String keyword,
+            @PageableDefault(page = 0, size = 4) Pageable pageable
+    ) throws Exception {
+        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("boardNum").descending());
+        keyword = URLDecoder.decode(keyword, "UTF-8");
+        System.out.println("keyword: " + keyword);
+        return ResponseEntity.ok(boardService.searchBoard(keyword, pageable));
+    }
 
     // 게시글 등록
     @PostMapping
