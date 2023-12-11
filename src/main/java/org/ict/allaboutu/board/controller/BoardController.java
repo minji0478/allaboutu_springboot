@@ -57,9 +57,9 @@ public class BoardController {
     }
 
     // 해시태그 검색
-    @GetMapping("/search/{keyword}")
+    @GetMapping("/search")
     public ResponseEntity<Page<BoardDto>> searchBoard(
-            @PathVariable String keyword,
+            @RequestParam("keyword") String keyword,
             @PageableDefault(page = 0, size = 4) Pageable pageable
     ) throws Exception {
         pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("boardNum").descending());
