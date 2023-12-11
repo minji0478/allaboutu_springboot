@@ -34,6 +34,14 @@ public class MemberController {
                 .body(new InputStreamResource(resource.getInputStream()));
     }
 
+    @GetMapping("/member/{userId}")
+    public ResponseEntity<MemberDto> getMember(
+            @PathVariable String userId
+    ) {
+        log.info("/member/{userId} : " + userId);
+        return ResponseEntity.ok(memberService.getMember(userId));
+    }
+
     @PostMapping("/signup")
     public ResponseEntity<MemberDto> signup(
             @RequestBody Member member

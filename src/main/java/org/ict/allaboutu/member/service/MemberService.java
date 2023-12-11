@@ -41,4 +41,26 @@ public class MemberService {
                 .reportCount(savedMember.getReportCount())
                 .build();
     }
+
+    public MemberDto getMember(String userId) {
+        Member member = memberRepository.findByUserId(userId);
+        if (member == null) {
+            return null;
+        }
+        return MemberDto.builder()
+                .userNum(member.getUserNum())
+                .userId(member.getUserId())
+                .userName(member.getUserName())
+                .userPwd(member.getUserPwd())
+                .userEmail(member.getUserEmail())
+                .userGender(member.getUserGender())
+                .userPhone(member.getUserPhone())
+                .userProfile(member.getUserProfile())
+                .enrollType(member.getEnrollType())
+                .enrollDate(member.getEnrollDate().toString())
+                .admin(member.getAdmin())
+                .account(member.getAccount())
+                .reportCount(member.getReportCount())
+                .build();
+    }
 }
