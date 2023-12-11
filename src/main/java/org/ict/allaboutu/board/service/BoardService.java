@@ -55,6 +55,17 @@ public class BoardService {
         return getBoardDto(board);
     }
 
+    @Transactional
+    public Page<BoardDto> searchBoard(String keyword, Pageable pageable) {
+        Page<Board> boardPage = boardRepository.findByHashtag(keyword, pageable);
+
+        Page<BoardDto> boardDtoPage = boardPage.map(board -> {
+            return getBoardDto(board);
+        });
+
+        return boardDtoPage;
+    }
+
     public BoardDto createBoard(Board board, List<String> hashtagList, List<MultipartFile> files) throws Exception {
 
         // Board 테이블 저장
@@ -359,5 +370,6 @@ public class BoardService {
             }
         }
     }
+
 
 }

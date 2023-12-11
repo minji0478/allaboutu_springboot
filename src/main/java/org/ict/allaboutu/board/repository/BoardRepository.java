@@ -34,4 +34,12 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
             "WHERE b.deleteDate IS NULL " +
             "ORDER BY b.readCount DESC")
     Page<Board> findBestBoards(Pageable pageable);
+
+    @Query(value = "SELECT b FROM Board b " +
+            "JOIN BoardHashtagLink bhl ON b.boardNum = bhl.id.boardNum " +
+            "JOIN BoardHashtag bh ON bhl.id.hashtagNum = bh.hashtagNum " +
+            "WHERE b.deleteDate IS NULL " +
+            "AND LOWER(bh.hashtag) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "ORDER BY b.boardNum DESC")
+    Page<Board> findByHashtag(@Param("keyword") String keyword, Pageable pageable);
 }
