@@ -21,30 +21,44 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/personal")
 public class PersonalColorController {
+
     private final PersonalColorService personalColorService;
 
     // UserPersonalColor 에 첨부파일 업로드 메소드
-    @PostMapping(value = "/insert", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<UserPersonalColor> uploadImage(@ModelAttribute PersonalDto personalDto, @RequestParam("file") MultipartFile file) {
-       log.info("file : " + file);
+    @PostMapping(value = "/upload", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<String[]> uploadImage(@RequestParam("file") MultipartFile file) {
+        
+        log.info("upload 요청왔다");
+        log.info("file : " + file);
+        String savePath = System.getProperty("user.dir") + "src/main/resources/personal_upload";
+        String originalFileName = null;
+        String renameFileName = null;
+
         if (file != null) {
             // 이미지 파일만 업로드
             if(!Objects.requireNonNull(file.getContentType()).startsWith("image")){
                 return new ResponseEntity<>(HttpStatus.FORBIDDEN);
             }
         }
-        String originalFileName = file.getOriginalFilename();
-        String renameFilenName = FileNameChange.change(originalFileName, "yyyyMMddHHmmss");
-        String savePath = System.getProperty("img.upload-dir") + "/src/main/resources/personal_upload/";
+        originalFileName = file.getOriginalFilename();
+        renameFileName = FileNameChange.change(originalFileName, "yyyyMMddHHmmss");
 
         log.info("personal savePath : " + savePath);
 
         try {
-            file.transferTo(new File(renameFilenName));
+            File saveFile = new File(savePath + renameFileName);
+            file.transferTo(saveFile);
         }catch (IOException e) {
             e.printStackTrace();
         }
 
+        String [] urlArr = {savePath, originalFileName, renameFileName};
+        return new ResponseEntity<>(urlArr, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/insert", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<UserPersonalColor> uploadImage(@ModelAttribute PersonalDto personalDto) {
+        log.info("insert 요청왔다");
         return ResponseEntity.ok(personalColorService.insertPersonal(personalDto));
     }
 }
