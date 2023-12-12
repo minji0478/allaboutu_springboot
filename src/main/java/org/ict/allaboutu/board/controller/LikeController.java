@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/boards/{boardNum}/likes/{userNum}")
+@RequestMapping("/boards/{boardNum}/likes/{userId}")
 public class LikeController {
 
     private final LikeService likeService;
@@ -18,9 +18,9 @@ public class LikeController {
     @GetMapping
     public ResponseEntity<Boolean> isLiked(
             @PathVariable("boardNum") Long boardNum,
-            @PathVariable("userNum") Long userNum
+            @PathVariable("userId") String userId
     ) throws Exception {
-        BoardLike like = likeService.isLiked(boardNum, userNum);
+        BoardLike like = likeService.isLiked(boardNum, userId);
 
         boolean result = (like != null) ? true : false;
         return ResponseEntity.ok(result);
@@ -29,18 +29,18 @@ public class LikeController {
     @PostMapping
     public ResponseEntity<BoardLike> createLike(
             @PathVariable("boardNum") Long boardNum,
-            @PathVariable("userNum") Long userNum
+            @PathVariable("userId") String userId
     ) throws Exception {
-        BoardLike like = likeService.createLike(boardNum, userNum);
+        BoardLike like = likeService.createLike(boardNum, userId);
         return ResponseEntity.ok(like);
     }
 
     @DeleteMapping
     public ResponseEntity<Void> deleteLike(
             @PathVariable("boardNum") Long boardNum,
-            @PathVariable("userNum") Long userNum
+            @PathVariable("userId") String userId
     ) throws Exception {
-        likeService.deleteLike(boardNum, userNum);
+        likeService.deleteLike(boardNum, userId);
         return ResponseEntity.noContent().build();
     }
 

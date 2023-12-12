@@ -3,7 +3,6 @@ package org.ict.allaboutu.member.service;
 import lombok.RequiredArgsConstructor;
 import org.ict.allaboutu.member.domain.Member;
 import org.ict.allaboutu.member.repository.MemberRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -28,7 +27,7 @@ public class MemberService {
         return MemberDto.builder()
                 .userNum(savedMember.getUserNum())
                 .userId(savedMember.getUserId())
-                .userName(savedMember.getUserName())
+                .userName(savedMember.getUsername())
                 .userPwd(savedMember.getUserPwd())
                 .userEmail(savedMember.getUserEmail())
                 .userGender(savedMember.getUserGender())
@@ -50,7 +49,7 @@ public class MemberService {
         return MemberDto.builder()
                 .userNum(member.getUserNum())
                 .userId(member.getUserId())
-                .userName(member.getUserName())
+                .userName(member.getUsername())
                 .userPwd(member.getUserPwd())
                 .userEmail(member.getUserEmail())
                 .userGender(member.getUserGender())
@@ -62,5 +61,9 @@ public class MemberService {
                 .account(member.getAccount())
                 .reportCount(member.getReportCount())
                 .build();
+    }
+
+    public String getUserId(Long userNum) {
+        return memberRepository.findById(userNum).get().getUserId();
     }
 }

@@ -2,12 +2,14 @@ package org.ict.allaboutu.config.filter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.ict.allaboutu.member.domain.Member;
 import org.ict.allaboutu.config.repository.TokenRepository;
 import org.ict.allaboutu.config.service.JwtService;
 import org.ict.allaboutu.member.repository.MemberRepository;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -57,6 +59,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
-        filterChain.doFilter(request, response);
+
+        // Jwt Token에서 userId 추출
+        // 추출한 userId로 Member 찾아오기
+        Member member = memberRepository.findByUserId(userEmail);
+
+        // 추출한 userId로 User 찾아오기
+        UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+
+        // loginUser 정보로 UsernamePasswordAuthenticationToken 발급
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+
     }
 }

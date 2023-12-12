@@ -33,13 +33,6 @@ public class NoticeController {
 
     private final NoticeService noticeService;
 
-//    @GetMapping
-//    public ResponseEntity<Page<NoticeDto>> getNoticeList(@PageableDefault(sort = {"noticeNum"}) Pageable pageable) throws Exception {
-//        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("noticeNum").descending());
-//        Page<NoticeDto> list = noticeService.getNoticeList(pageable);
-//        log.info("getNoticeList 결과 : " + list);
-//        return ResponseEntity.ok(list);
-//    }
 
     @GetMapping
     public ResponseEntity<Page<NoticeDto>> getNoticeList(@PageableDefault(sort = {"noticeNum"}) Pageable pageable) throws Exception {
