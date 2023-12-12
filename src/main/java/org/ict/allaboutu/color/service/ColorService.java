@@ -17,7 +17,8 @@ public class ColorService {
 
         log.info("색상 정보를 저장합니다: {}", colorDto);
 
-        return colorRepository.save(colorDto);
+//        return colorRepository.save(colorDto);
+        return null;
     }
 
     // 수정 로직
