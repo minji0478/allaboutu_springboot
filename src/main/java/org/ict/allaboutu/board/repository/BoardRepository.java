@@ -20,7 +20,7 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
     @Query(value = "SELECT MAX(b.boardNum) FROM Board b")
     Long findMaxBoardNum();
 
-    @Query(value = "SELECT COUNT(l) FROM BoardLike l WHERE l.boardNum = :boardNum")
+    @Query(value = "SELECT COUNT(l) FROM BoardLike l WHERE l.id.boardNum = :boardNum")
     Long countLikeByBoardNum(@Param("boardNum") Long boardNum);
 
     @Modifying

@@ -19,6 +19,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.util.List;
 
@@ -98,8 +100,10 @@ public class BoardController {
     @GetMapping("/image/{imageName}")
     public ResponseEntity<Resource> getImage(@PathVariable String imageName) throws Exception {
         Resource resource = new ClassPathResource("/board_upload/" + imageName);
+        File file = resource.getFile();
+        MediaType mediaType = getContentType(file.getName().substring(file.getName().lastIndexOf(".") + 1));
         return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_JPEG)
+                .contentType(mediaType)
                 .body(new InputStreamResource(resource.getInputStream()));
     }
 
@@ -110,5 +114,25 @@ public class BoardController {
             @RequestBody Report report
     ) throws Exception {
         return ResponseEntity.ok(boardService.reportBoard(report));
+    }
+
+    private MediaType getContentType(String fileExtension) {
+        switch (fileExtension.toLowerCase()) {
+            case "png":
+                return MediaType.IMAGE_PNG;
+            case "jpg":
+            case "jpeg":
+                return MediaType.IMAGE_JPEG;
+            case "gif":
+                return MediaType.IMAGE_GIF;
+            case "bmp":
+                return MediaType.parseMediaType("image/bmp");
+            case "webp":
+                return MediaType.parseMediaType("image/webp");
+            case "svg":
+                return MediaType.parseMediaType("image/svg+xml");
+            default:
+                return MediaType.APPLICATION_OCTET_STREAM;
+        }
     }
 }
