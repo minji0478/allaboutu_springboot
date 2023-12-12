@@ -25,6 +25,24 @@ public class CommentService {
     private final MemberRepository memberRepository;
     private final ProfileHashtagRepository profileHashtagRepository;
 
+    public CommentDto getComment(Long commentNum) throws Exception {
+        Comment comment = commentRepository.findById(commentNum).get();
+        MemberDto writerDto = getMemberDto(comment.getUserNum());
+
+        CommentDto commentDto = CommentDto.builder()
+                .commentNum(comment.getCommentNum())
+                .boardNum(comment.getBoardNum())
+                .userNum(comment.getUserNum())
+                .writer(writerDto)
+                .parentNum(comment.getParentNum())
+                .content(comment.getContent())
+                .createDate(comment.getCreateDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .modifyDate((comment.getModifyDate() != null) ? comment.getModifyDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "N/A")
+                .build();
+
+        return commentDto;
+    }
+
     public List<CommentDto> getCommentList(Long boardNum) throws Exception {
         List<CommentDto> list = new ArrayList<>();
 
