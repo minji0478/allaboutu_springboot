@@ -2,7 +2,6 @@ package org.ict.allaboutu.Access;
 
 import lombok.RequiredArgsConstructor;
 import org.ict.allaboutu.board.domain.BoardLike;
-import org.ict.allaboutu.board.repository.LikeRepository;
 import org.ict.allaboutu.board.service.BoardDto;
 import org.ict.allaboutu.board.service.BoardService;
 import org.ict.allaboutu.board.service.CommentService;
@@ -10,8 +9,6 @@ import org.ict.allaboutu.board.service.LikeService;
 import org.ict.allaboutu.member.service.MemberService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-
-import static org.ict.allaboutu.board.service.AccessUtil.isWriter;
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +38,7 @@ public class AccessService {
         String currentId = authentication.getName();
         Long currentUserNum = memberService.getMember(currentId).getUserNum();
         // 좋아요를 누른 사용자와 현재 사용자가 일치하는지 확인
-        return currentUserNum.equals(isLiked.getUserNum());
+        return currentUserNum.equals(isLiked.getId().getUserNum());
     }
 
 //    public boolean isCommentAuthor(Authentication authentication, Long boardNum, Long commentNum) {
