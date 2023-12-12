@@ -1,10 +1,10 @@
 package org.ict.allaboutu.oauth.service;
 
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.ict.allaboutu.config.repository.TokenRepository;
 import org.ict.allaboutu.config.service.JwtService;
 import org.ict.allaboutu.config.testModel.TokenType;
@@ -16,16 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
+
+import java.io.IOException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -66,7 +61,7 @@ public class AuthService {
 
 
     private void revokeAllUserTokens(Member member) {
-        List<Tokens> validTokens = tokenRepository.findAllValidTokenByUserId(member.getUserName());
+        List<Tokens> validTokens = tokenRepository.findAllValidTokenByUserId(member.getUsername());
         if (!validTokens.isEmpty()) {
             validTokens.forEach( t-> {
                 t.setExpired(true);
