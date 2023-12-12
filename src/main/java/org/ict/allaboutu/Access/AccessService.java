@@ -29,7 +29,8 @@ public class AccessService {
 
     public boolean isLikeOwner(Authentication authentication, Long boardNum, Long userNum) throws Exception {
         // 좋아요를 누른 사용자 정보 가져오기
-        BoardLike isLiked = likeService.isLiked(boardNum, userNum);
+        String userId = memberService.getUserId(userNum);
+        BoardLike isLiked = likeService.isLiked(boardNum, userId);
 
         // 현재 인증된 사용자 정보 가져오기
         String currentId = authentication.getName();
