@@ -70,7 +70,7 @@ public class PersonalColorController {
         Resource resource = null;
         int retryCount = 0;
         boolean imageFound = false;
-
+        log.info("여기로도 넘어오니?");
         int RETRY_DELAY = 500;
         int MAX_RETRY_COUNT = 500;
 
