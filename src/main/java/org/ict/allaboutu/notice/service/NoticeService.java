@@ -127,8 +127,8 @@ public class NoticeService {
     }
 
     public NoticeDto createNotice(Notice notice, MultipartFile file) {
-
-        Long noticeNum = noticeRepository.findMaxNoticeNumber() + 1;
+        Long maxNum = noticeRepository.findMaxNoticeNumber();
+        Long noticeNum = maxNum== null ? 1L : maxNum + 1 ;
         notice.setNoticeNum(noticeNum);
         notice.setWriteDate(LocalDate.now());
         notice.setReadCount(0L);
@@ -288,6 +288,8 @@ public class NoticeService {
         }
         // 존재하지 않아도 아무런 동작을 하지 않음 (에러를 발생시키거나 예외를 던지는 등의 처리도 가능)
     }
+
+
 
     // 다운로드 시 파일 읽기
     public byte[] downloadFile(String fileName) throws IOException
