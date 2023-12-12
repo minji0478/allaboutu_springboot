@@ -1,9 +1,6 @@
 package org.ict.allaboutu.board.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -17,17 +14,8 @@ import java.time.LocalDateTime;
 @Builder
 @Table(name = "board_like")
 public class BoardLike {
-
-    @Id
-    @Column(name = "like_num")
-    private Long likeNum;
-    @Column(name = "board_num")
-    private Long boardNum;
-    @Column(name = "user_num")
-    private Long userNum;
+    @EmbeddedId
+    private BoardLikePK id;
     @Column(name = "create_date")
     private LocalDateTime createDate;
-    @Column(name = "checked")
-    private String checked;
-
 }
