@@ -59,6 +59,8 @@ public class BoardService {
     public Page<BoardDto> searchBoard(String keyword, Pageable pageable) {
         Page<Board> boardPage = boardRepository.findByHashtag(keyword, pageable);
 
+        System.out.println("boardPage: " + boardPage);
+
         Page<BoardDto> boardDtoPage = boardPage.map(board -> {
             return getBoardDto(board);
         });

@@ -6,6 +6,9 @@ import org.ict.allaboutu.common.FileNameChange;
 import org.ict.allaboutu.personalcolor.domain.UserPersonalColor;
 import org.ict.allaboutu.personalcolor.service.PersonalColorService;
 import org.ict.allaboutu.personalcolor.service.PersonalDto;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +33,7 @@ public class PersonalColorController {
         
         log.info("upload 요청왔다");
         log.info("file : " + file);
-        String savePath = System.getProperty("user.dir") + "src/main/resources/personal_upload";
+        String savePath = System.getProperty("user.dir") + "/src/main/resources/personal_upload/";
         String originalFileName = null;
         String renameFileName = null;
 
@@ -57,8 +60,45 @@ public class PersonalColorController {
     }
 
     @PostMapping(value = "/insert", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<UserPersonalColor> uploadImage(@ModelAttribute PersonalDto personalDto) {
+    public ResponseEntity<UserPersonalColor> uploadImage(@RequestParam PersonalDto personalDto) {
         log.info("insert 요청왔다");
         return ResponseEntity.ok(personalColorService.insertPersonal(personalDto));
+    }
+
+    @GetMapping("/image/{imageName}")
+    public ResponseEntity<Resource> getImage(@PathVariable String imageName) throws Exception {
+        Resource resource = null;
+        int retryCount = 0;
+        boolean imageFound = false;
+        log.info("여기로도 넘어오니?");
+        int RETRY_DELAY = 500;
+        int MAX_RETRY_COUNT = 500;
+
+        while (!imageFound && retryCount < MAX_RETRY_COUNT) {
+            try {
+                resource = new ClassPathResource("/personal_upload/" + imageName);
+                System.out.println("retryCount : " + retryCount);
+                if (resource.exists()) {
+                    imageFound = true;
+                }
+            } catch (Exception e) {
+                // Handle exception, if needed
+            }
+
+            if (!imageFound) {
+                // Wait for a certain period before retrying
+                Thread.sleep(RETRY_DELAY);
+                retryCount++;
+            }
+        }
+
+        if (imageFound) {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.IMAGE_JPEG)
+                    .body(new InputStreamResource(resource.getInputStream()));
+        } else {
+            // Image not found, return an appropriate response
+            return ResponseEntity.notFound().build();
+        }
     }
 }

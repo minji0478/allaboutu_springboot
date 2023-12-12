@@ -11,10 +11,8 @@ import lombok.*;
 public class ColorDto {
     private Long colorNum;
 
-    private String colorName;
-
     private String colorImg;
 
-
+    private String classify;
 
 }

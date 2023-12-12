@@ -16,22 +16,30 @@ public class LikeController {
     private final LikeService likeService;
 
     @GetMapping
-    public ResponseEntity<Boolean> isLiked(@PathVariable Long boardNum, @PathVariable Long userNum) throws Exception {
+    public ResponseEntity<Boolean> isLiked(
+            @PathVariable("boardNum") Long boardNum,
+            @PathVariable("userNum") Long userNum
+    ) throws Exception {
         BoardLike like = likeService.isLiked(boardNum, userNum);
 
-        boolean result = (like == null) ? false : true;
-
+        boolean result = (like != null) ? true : false;
         return ResponseEntity.ok(result);
     }
 
     @PostMapping
-    public ResponseEntity<BoardLike> createLike(@PathVariable Long boardNum, @PathVariable Long userNum) throws Exception {
+    public ResponseEntity<BoardLike> createLike(
+            @PathVariable("boardNum") Long boardNum,
+            @PathVariable("userNum") Long userNum
+    ) throws Exception {
         BoardLike like = likeService.createLike(boardNum, userNum);
         return ResponseEntity.ok(like);
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteLike(@PathVariable Long boardNum, @PathVariable Long userNum) throws Exception {
+    public ResponseEntity<Void> deleteLike(
+            @PathVariable("boardNum") Long boardNum,
+            @PathVariable("userNum") Long userNum
+    ) throws Exception {
         likeService.deleteLike(boardNum, userNum);
         return ResponseEntity.noContent().build();
     }

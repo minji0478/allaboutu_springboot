@@ -29,6 +29,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final TokenRepository tokenRepository;
     private final MemberRepository memberRepository;
 
+    private static final int ACCESS_EXPIRED = 701;
+    private static final int REFRESH_EXPIRED = 702;
+    private static final int DOUBLE_EXPIRED = 703;
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
