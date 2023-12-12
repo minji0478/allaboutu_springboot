@@ -40,13 +40,18 @@ public class AuthService {
 
     public AuthResponse authenticate(Member member) {
         // 사용자의 암호를 검증하기 전에 암호를 인코딩합니다.
-        String encodedPassword = passwordEncoder.encode(member.getUserPwd());
+//        String encodedPassword = passwordEncoder.encode(member.getUserPwd());
+        Member savedMember = memberRepository.findByUserId(member.getUserId());
+        String encodedPassword = savedMember.getUserPwd();
+
         System.out.println("\n\nlogin 테스트 2 : " + member.getUserId());
         System.out.println("\n\nlogin 테스트 2 : " + encodedPassword);
 
         // matches 메서드를 사용하여 비밀번호를 확인합니다.
         if (passwordEncoder.matches(member.getUserPwd(), encodedPassword)) {
             // 인증이 성공하면 나머지 코드를 진행합니다.
+            member.setAdmin(savedMember.getAdmin());
+            member.setUserNum(savedMember.getUserNum());
             String jwtToken = jwtService.generateToken(member);
             String refreshToken = jwtService.generateRefreshToken(member);
             revokeAllUserTokens(member);
