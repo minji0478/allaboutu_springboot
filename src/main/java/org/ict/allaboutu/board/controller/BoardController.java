@@ -3,9 +3,11 @@ package org.ict.allaboutu.board.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.allaboutu.admin.domain.Report;
+import org.ict.allaboutu.admin.service.ReportDto;
 import org.ict.allaboutu.board.domain.Board;
 import org.ict.allaboutu.board.service.BoardDto;
 import org.ict.allaboutu.board.service.BoardService;
+import org.ict.allaboutu.member.service.MemberService;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -31,14 +33,13 @@ import java.util.List;
 public class BoardController {
 
     private final BoardService boardService;
+    private final MemberService memberService;
 
     // 게시글 목록 조회
     @GetMapping
     @CrossOrigin(origins = "http://localhost:2222")
     public ResponseEntity<Page<BoardDto>> getBoardList(@PageableDefault(page = 0, size = 4) Pageable pageable) throws Exception {
-        System.out.println("pageable: " + pageable);
         pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("boardNum").descending());
-        System.out.println("pageable: " + pageable);
         Page<BoardDto> list = boardService.getBoardList(pageable);
         return ResponseEntity.ok(list);
     }
@@ -73,11 +74,11 @@ public class BoardController {
     // 게시글 등록
     @PostMapping
     public ResponseEntity<BoardDto> createBoard(
-            @RequestPart("board") Board board,
+            @RequestPart("board") BoardDto boardDto,
             @RequestPart(value = "hashtags", required = false) List<String> hashtagList,
             @RequestPart(value = "attachments", required = false) List<MultipartFile> files
     ) throws Exception {
-        return ResponseEntity.ok(boardService.createBoard(board, hashtagList, files));
+        return ResponseEntity.ok(boardService.createBoard(boardDto, hashtagList, files));
     }
 
     @PatchMapping("/{boardNum}")
@@ -111,9 +112,10 @@ public class BoardController {
     @PostMapping("/{boardNum}/reports")
     public ResponseEntity<Report> reportBoard(
             @PathVariable Long boardNum,
-            @RequestBody Report report
+            @RequestBody ReportDto reportDto
     ) throws Exception {
-        return ResponseEntity.ok(boardService.reportBoard(report));
+        System.out.println("reportDto: " + reportDto);
+        return ResponseEntity.ok(boardService.reportBoard(reportDto));
     }
 
     private MediaType getContentType(String fileExtension) {
