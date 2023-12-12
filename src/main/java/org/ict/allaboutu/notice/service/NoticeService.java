@@ -15,6 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -90,7 +94,7 @@ public class NoticeService {
 
     //검색처리
     public Page<NoticeDto> searchNoticesByKeyword( String searchType,String keyword, Pageable pageable) {
-        
+
         Page<Notice> noticeList =   null;
 
          if(searchType.equals("title") ){
@@ -204,61 +208,75 @@ public class NoticeService {
     }
 
     public NoticeDto updateNotice(Notice notice, MultipartFile file) {
-        Notice oldNotice = noticeRepository.findById(notice.getNoticeNum()).get();
-        //파일 저장 전 기존 파일 삭제
-       if(oldNotice.getRenameFileName() != null){
-           String savePath = System.getProperty("user.dir") + "/src/main/resources/board_upload/";
-           File deleteFile = new File(savePath, oldNotice.getRenameFileName());
-           deleteFile.delete();
-       }
+        Notice oldNotice = noticeRepository.findById(notice.getNoticeNum()).orElse(null);
 
-        //파일 저장
-        if(file != null){
-            String renameFileName = null;
-            try{
-                renameFileName = FileNameChange.change(file.getOriginalFilename(), "yyyyMMddHHmmss");
-                String savePath = System.getProperty("user.dir") + "/src/main/resources/notice_upload/";
-                File saveFile = new File(savePath, renameFileName);
-                file.transferTo(saveFile);
-                notice.setOriginalFileName(file.getOriginalFilename());
-                notice.setRenameFileName(renameFileName);
-            }catch(Exception e) {
-                e.printStackTrace();
+        // 이미지가 변경되었을 때만 기존 파일 삭제 및 새로운 파일 저장
+        if (oldNotice != null) {
+            if (file != null) {
+                // 기존 파일 삭제
+                if (oldNotice.getRenameFileName() != null) {
+                    String savePath = System.getProperty("user.dir") + "/src/main/resources/notice_upload/";
+                    File deleteFile = new File(savePath, oldNotice.getRenameFileName());
+                    deleteFile.delete();
+                }
+
+                // 새로운 파일 저장
+                String renameFileName = null;
+                try {
+                    renameFileName = FileNameChange.change(file.getOriginalFilename(), "yyyyMMddHHmmss");
+                    String savePath = System.getProperty("user.dir") + "/src/main/resources/notice_upload/";
+                    File saveFile = new File(savePath, renameFileName);
+                    file.transferTo(saveFile);
+                    notice.setOriginalFileName(file.getOriginalFilename());
+                    notice.setRenameFileName(renameFileName);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                // 이미지 변경이 없는 경우 기존 값을 그대로 사용
+                notice.setOriginalFileName(oldNotice.getOriginalFileName());
+                notice.setRenameFileName(oldNotice.getRenameFileName());
             }
+
+            // 나머지 필드 업데이트
+            notice.setUserNum(oldNotice.getUserNum());
+            notice.setCartegory(oldNotice.getCartegory());
+            notice.setWriteDate(oldNotice.getWriteDate());
+            notice.setEventStart(oldNotice.getEventStart());
+            notice.setEventEnd(oldNotice.getEventEnd());
+            notice.setImportance(oldNotice.getImportance());
+            notice.setImportanceDate(oldNotice.getImportanceDate());
+            notice.setWriteDate(oldNotice.getWriteDate());
+            notice.setModifyDate(LocalDateTime.now());
+            notice.setReadCount(oldNotice.getReadCount());
+
+            // Notice 테이블 저장
+            Notice saveNotice = noticeRepository.save(notice);
+
+            // Member 및 NoticeDto 생성
+            Member member = memberRepository.findById(notice.getUserNum()).orElse(null);
+            NoticeDto noticeDto = NoticeDto.builder()
+                    .noticeNum(notice.getNoticeNum())
+                    .userNum(member != null ? member.getUserNum() : null)
+                    .userName(member != null ? member.getUserName() : null)
+                    .noticeTitle(notice.getNoticeTitle())
+                    .noticeContents(notice.getNoticeContents())
+                    .cartegory(notice.getCartegory())
+                    .eventStart(notice.getEventStart() != null ? notice.getEventStart().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A")
+                    .eventEnd(notice.getEventEnd() != null ? notice.getEventEnd().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A")
+                    .importance(notice.getImportance())
+                    .importanceDate(notice.getImportanceDate() != null ? notice.getImportanceDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A")
+                    .originalFileName(notice.getOriginalFileName())
+                    .renameFileName(notice.getRenameFileName())
+                    .readCount(notice.getReadCount())
+                    .writeDate(notice.getWriteDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+                    .build();
+
+            return noticeDto;
+        } else {
+            // oldNotice가 null인 경우에 대한 처리 추가
+            return null; // 또는 예외를 던지거나 다른 처리를 수행
         }
-
-        //Notice 테이블 저장
-        notice.setUserNum(oldNotice.getUserNum());
-        notice.setCartegory(oldNotice.getCartegory());
-        notice.setWriteDate(oldNotice.getWriteDate());
-        notice.setEventStart(oldNotice.getEventStart());
-        notice.setEventEnd(oldNotice.getEventEnd());
-        notice.setImportance(oldNotice.getImportance());
-        notice.setImportanceDate(oldNotice.getImportanceDate());
-        notice.setWriteDate(oldNotice.getWriteDate());
-        notice.setModifyDate(LocalDateTime.now());
-        notice.setReadCount(oldNotice.getReadCount());
-        Notice saveNotice = noticeRepository.save(notice);
-
-        Member member = memberRepository.findById(notice.getUserNum()).get();
-        NoticeDto noticeDto = NoticeDto.builder()
-                .noticeNum(notice.getNoticeNum())
-                .userNum(member.getUserNum())
-                .userName(member.getUserName())
-                .noticeTitle(notice.getNoticeTitle())
-                .noticeContents(notice.getNoticeContents())
-                .cartegory(notice.getCartegory())
-                .eventStart(notice.getEventStart() !=null ? notice.getEventStart().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A")
-                .eventEnd(notice.getEventEnd()!=null ? notice.getEventEnd().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A")
-                .importance(notice.getImportance())
-                .importanceDate(notice.getImportanceDate()!=null ? notice.getImportanceDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A")
-                .originalFileName(notice.getOriginalFileName())
-                .renameFileName(notice.getRenameFileName())
-                .readCount(notice.getReadCount())
-                .writeDate(notice.getWriteDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
-                .build();
-
-        return noticeDto;
     }
 
     public void deleteNotice(Long noticeNum) {
@@ -270,5 +288,15 @@ public class NoticeService {
         }
         // 존재하지 않아도 아무런 동작을 하지 않음 (에러를 발생시키거나 예외를 던지는 등의 처리도 가능)
     }
+
+    // 다운로드 시 파일 읽기
+    public byte[] downloadFile(String fileName) throws IOException
+    {
+        String filePath = System.getProperty("user.dir") + "/src/main/resources/notice_upload/" + fileName;
+        Path path = Paths.get(filePath);
+        return Files.readAllBytes(path);
+    }
+
+
 
 }

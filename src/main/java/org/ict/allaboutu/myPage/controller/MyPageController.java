@@ -23,7 +23,7 @@ public class MyPageController {
     }
 
 
-    @PatchMapping("/myPage/{userNum}") //나중에 (website) myPage로 바꿔줘야함
+    @PatchMapping("/myPage/{userNum}")
     public ResponseEntity<MyPageDto> updateUser(@PathVariable Long userNum, @RequestBody Member updateMember){
         MyPageDto myPageDto = myPageService.updateUser(userNum,updateMember);
 
