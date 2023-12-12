@@ -39,7 +39,11 @@ public class JwtService {
 
 
     public String generateToken(Member member) {
-        return buildToken(new HashMap<>(), member, jwtExpiration);
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("role", member.getAdmin());
+        extraClaims.put("userNum", member.getUserNum());
+        return buildToken(extraClaims, member, jwtExpiration);
+
     }
 
     public String generateRefreshToken(Member member) {
