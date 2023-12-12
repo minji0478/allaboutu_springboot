@@ -28,7 +28,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         List<String> anyList = List.of("/auth/**", "/index.html", "/signup", "/css/**", "/js/**", "/img/**", "/h2-console/**", "/favicon.ico", "/login", "/logout", "/api/**", "/assets/**",
                 "/notices/search", "/notices/imp", "/notices/image/{renamefileName}", "/notices/detail/{noticeNum}", "/boards/search", "/boards/rank", "/boards/image/{imageName}",
-                "/", "");
+                "/");
         List<String> userOnlyList = List.of("/style/upload", "/style/insert", "/style/image/{imageName}", "/member/{userId}", "/member/image/{imageName}", "/personal/upload", "/personal/insert", "/personal/image/{imageName}",
                 "/boards/{boardNum}", "/boards/search", "/cody", "/cody/**");
         List<String> adminOnlyList = List.of("/reports/{reportNum}", "/member/{userNum}", "/reports/**", "/admin/get");
@@ -48,6 +48,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.PATCH, "/notices/{noticeNum}").hasRole("ADMIN")
                                 .requestMatchers(HttpMethod.PATCH, "/boards/{boardNum}").access("@AccessService.isBoardAuthor(authentication, #boardNum)")
                                 .requestMatchers(HttpMethod.PATCH, "/boards/{boardNum}/comments/{commentNum}").access("@AccessService.isCommentAuthor(authentication, #boardNum, #commentNum)")
+                                .requestMatchers(anyList.toArray(String[]::new)).permitAll()
                 )
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
