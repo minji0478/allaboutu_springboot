@@ -13,11 +13,16 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 @Slf4j
@@ -60,11 +65,36 @@ public class NoticeController {
         }
     }
 
+    //파일 다운로드
+    @GetMapping("/download/{renameFileName}")
+    public ResponseEntity<byte[]> downloadFile(@PathVariable String renameFileName) throws IOException {
+        // 경로 설정
+        String filePath = System.getProperty("user.dir") + "/src/main/resources/notice_upload/" + renameFileName;
+
+        // 파일을 byte 배열로 읽어오기
+        byte[] fileContent = Files.readAllBytes(Paths.get(filePath));
+
+        // Content-Disposition 헤더 설정
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentDispositionFormData("attachment", renameFileName);
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(fileContent);
+    }
+
+
     @GetMapping("/image/{renamefileName}")
     public ResponseEntity<Resource> getImage(@PathVariable String renamefileName) throws Exception {
         Resource resource = new ClassPathResource("/notice_upload/" + renamefileName);
+
+        File file = resource.getFile();
+        MediaType mediaType = getContentType(file.getName().substring(file.getName().lastIndexOf(".") + 1));
+        System.out.println("mediaType : " + mediaType);
+
         return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_JPEG)
+                .contentType(mediaType)
                 .body(new InputStreamResource(resource.getInputStream()));
     }
 
@@ -82,6 +112,7 @@ public class NoticeController {
             @RequestPart("notice") Notice notice,
             @RequestPart(value = "file", required = false) MultipartFile file
     ) throws Exception {
+        System.out.println("file: " + file);
         return ResponseEntity.ok(noticeService.updateNotice(notice, file));
 
     }
@@ -101,4 +132,32 @@ public class NoticeController {
         pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("noticeNum").descending());
         return ResponseEntity.ok(noticeService.searchNoticesByKeyword(searchType, keyword , pageable));
     }
+
+    private MediaType getContentType(String fileExtension) {
+        switch (fileExtension.toLowerCase()) {
+            case "png":
+                return MediaType.IMAGE_PNG;
+            case "jpg":
+            case "jpeg":
+                return MediaType.IMAGE_JPEG;
+            case "gif":
+                return MediaType.IMAGE_GIF;
+            case "bmp":
+                return MediaType.parseMediaType("image/bmp");
+            case "webp":
+                return MediaType.parseMediaType("image/webp");
+            case "svg":
+                return MediaType.parseMediaType("image/svg+xml");
+            case "pdf":
+                return MediaType.APPLICATION_PDF;
+            case "xls":
+            case "xlsx":
+                return MediaType.APPLICATION_OCTET_STREAM;
+            default:
+                return MediaType.APPLICATION_OCTET_STREAM;
+        }
+    }
+
+
+
 }
