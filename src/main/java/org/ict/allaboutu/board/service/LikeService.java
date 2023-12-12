@@ -20,31 +20,31 @@ public class LikeService {
     private final LikeRepository likeRepository;
     private final MemberRepository memberRepository;
 
-    public BoardLike isLiked(Long boardNum, Long userNum) throws Exception {
-        Member member = memberRepository.findById(userNum).orElse(null);
+    public BoardLike isLiked(Long boardNum, String userId) throws Exception {
+        Member member = memberRepository.findByUserId(userId);
 
         if (member == null) {
             return null;
         } else {
-            return likeRepository.findById(new BoardLikePK(boardNum, userNum)).orElse(null);
+            return likeRepository.findById(new BoardLikePK(boardNum, member.getUserNum())).orElse(null);
         }
     }
 
-    public BoardLike createLike(Long boardNum, Long userNum) throws Exception {
-        Member member = memberRepository.findById(userNum).orElse(null);
+    public BoardLike createLike(Long boardNum, String userId) throws Exception {
+        Member member = memberRepository.findByUserId(userId);
 
         if (member == null) {
             return null;
         } else {
-            BoardLikePK id = new BoardLikePK(boardNum, userNum);
+            BoardLikePK id = new BoardLikePK(boardNum, member.getUserNum());
             BoardLike like = new BoardLike(id, LocalDateTime.now());
 
             return likeRepository.save(like);
         }
     }
 
-    public void deleteLike(Long boardNum, Long userNum) throws Exception {
-        Member member = memberRepository.findById(userNum).orElse(null);
+    public void deleteLike(Long boardNum, String userId) throws Exception {
+        Member member = memberRepository.findByUserId(userId);
 
         if (member == null) {
             return;

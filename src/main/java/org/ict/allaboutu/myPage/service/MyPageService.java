@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.allaboutu.member.domain.Member;
 import org.ict.allaboutu.member.repository.MemberRepository;
-import org.ict.allaboutu.myPage.repository.MyPageRepository;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -22,7 +21,7 @@ public class MyPageService {
         }
         MyPageDto myPageDto = MyPageDto.builder()
                 .userId(member.getUserId())
-                .userName(member.getUserName())
+                .userName(member.getUsername())
                 .userPwd(member.getUserPwd())
                 .userEmail(member.getUserEmail())
                 .userPhone(member.getUserPhone())

@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.allaboutu.admin.domain.Report;
 import org.ict.allaboutu.admin.repository.ReportRepository;
+import org.ict.allaboutu.admin.service.ReportDto;
 import org.ict.allaboutu.board.domain.*;
 import org.ict.allaboutu.board.repository.*;
 import org.ict.allaboutu.member.domain.Member;
@@ -68,13 +69,20 @@ public class BoardService {
         return boardDtoPage;
     }
 
-    public BoardDto createBoard(Board board, List<String> hashtagList, List<MultipartFile> files) throws Exception {
+    public BoardDto createBoard(BoardDto boardDto, List<String> hashtagList, List<MultipartFile> files) throws Exception {
 
         // Board 테이블 저장
         Long maxBoardNum = boardRepository.findMaxBoardNum();
-        board.setBoardNum(maxBoardNum == null ? 1 : maxBoardNum + 1);
-        board.setCreateDate(LocalDateTime.now());
-        board.setReadCount(0L);
+        Long userNum = memberRepository.findByUserId(boardDto.getWriter().getUserId()).getUserNum();
+        Board board = Board.builder()
+                .boardNum(maxBoardNum == null ? 1 : maxBoardNum + 1)
+                .userNum(userNum)
+                .categoryNum(boardDto.getCategoryNum())
+                .boardTitle(boardDto.getBoardTitle())
+                .boardContent(boardDto.getBoardContent())
+                .createDate(LocalDateTime.now())
+                .readCount(0L)
+                .build();
         Board savedBoard = boardRepository.save(board);
 
         // BoardHashtag 테이블 저장
@@ -125,12 +133,10 @@ public class BoardService {
         }
 
         // BoardDto 객체 생성
-        BoardDto boardDto = BoardDto.builder()
+        boardDto = BoardDto.builder()
                 .boardNum(savedBoard.getBoardNum())
                 .userNum(savedBoard.getUserNum())
-                .categoryNum(savedBoard.getCategoryNum())
-                .boardTitle(savedBoard.getBoardTitle())
-                .boardContent(savedBoard.getBoardContent())
+                .createDate(savedBoard.getCreateDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .hashtags(boardHashtags)
                 .attachments(attachments)
                 .build();
@@ -192,11 +198,18 @@ public class BoardService {
         boardRepository.save(board);
     }
 
-    public Report reportBoard(Report report) {
-        Board board = boardRepository.findById(report.getBoardNum()).get();
+    public Report reportBoard(ReportDto reportDto) {
+        Board board = boardRepository.findById(reportDto.getBoardNum()).get();
+        Long reportUserNum = memberRepository.findByUserId(reportDto.getReportUserId()).getUserNum();
         Long maxReportNum = ReportRepository.findMaxReportNum();
-        report.setReportNum(maxReportNum == null ? 1 : maxReportNum + 1);
+
+        Report report = new Report();
+        report.setReportNum(maxReportNum == null ? 1L : maxReportNum + 1L);
         report.setUserNum(board.getUserNum());
+        report.setBoardNum(board.getBoardNum());
+        report.setReportUserNum(reportUserNum);
+        report.setReportCause(reportDto.getReportCause());
+        report.setReportReason(reportDto.getReportReason());
         report.setDeleteDate(LocalDateTime.now());
         return ReportRepository.save(report);
     }
@@ -223,7 +236,7 @@ public class BoardService {
         MemberDto writerDto = MemberDto.builder()
                 .userNum(writer.getUserNum())
                 .userId(writer.getUserId())
-                .userName(writer.getUserName())
+                .userName(writer.getUsername())
                 .userProfile(writer.getUserProfile())
                 .hashtags(profileHashtags)
                 .build();
