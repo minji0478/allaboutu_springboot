@@ -50,8 +50,8 @@ public class AuthService {
         // matches 메서드를 사용하여 비밀번호를 확인합니다.
         if (passwordEncoder.matches(member.getUserPwd(), encodedPassword)) {
             // 인증이 성공하면 나머지 코드를 진행합니다.
-            member.setAdmin(savedMember.getAdmin());
-            member.setUserNum(savedMember.getUserNum());
+            // member.setAdmin(savedMember.getAdmin());
+            // member.setUserNum(savedMember.getUserNum());
             String jwtToken = jwtService.generateToken(member);
             String refreshToken = jwtService.generateRefreshToken(member);
             revokeAllUserTokens(member);
