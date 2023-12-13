@@ -23,13 +23,13 @@ public class CommentController {
     }
 
     @PostMapping
-    public ResponseEntity<CommentDto> createComment(@PathVariable Long boardNum, @RequestBody CommentDto comment) throws Exception {
-        return ResponseEntity.ok(commentService.createComment(boardNum, comment));
+    public ResponseEntity<CommentDto> createComment(@PathVariable Long boardNum, @RequestBody CommentDto commentDto) throws Exception {
+        return ResponseEntity.ok(commentService.createComment(boardNum, commentDto));
     }
 
     @PatchMapping("/{commentNum}")
-    public ResponseEntity<CommentDto> updateComment(@PathVariable Long boardNum, @PathVariable Long commentNum, @RequestBody CommentDto comment) throws Exception {
-        return ResponseEntity.ok(commentService.updateComment(boardNum, commentNum, comment));
+    public ResponseEntity<CommentDto> updateComment(@PathVariable Long boardNum, @PathVariable Long commentNum, @RequestBody CommentDto commentDto) throws Exception {
+        return ResponseEntity.ok(commentService.updateComment(boardNum, commentNum, commentDto));
     }
 
     @DeleteMapping("/{commentNum}")

@@ -195,6 +195,7 @@ public class BoardService {
     public void deleteBoard(Long boardNum) {
         Board board = boardRepository.findById(boardNum).get();
         board.setDeleteDate(LocalDateTime.now());
+
         boardRepository.save(board);
     }
 

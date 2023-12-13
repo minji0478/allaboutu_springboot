@@ -9,6 +9,7 @@ import org.ict.allaboutu.board.service.BoardDto;
 import org.ict.allaboutu.board.service.BoardService;
 import org.ict.allaboutu.member.service.MemberService;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -100,7 +101,8 @@ public class BoardController {
     // 이미지 가져오기
     @GetMapping("/image/{imageName}")
     public ResponseEntity<Resource> getImage(@PathVariable String imageName) throws Exception {
-        Resource resource = new ClassPathResource("/board_upload/" + imageName);
+        Resource resource = new FileSystemResource("E:\\poketAi_workspace\\allaboutu_springboot\\src\\main\\resources\\board_upload\\" + imageName);
+
         File file = resource.getFile();
         MediaType mediaType = getContentType(file.getName().substring(file.getName().lastIndexOf(".") + 1));
         return ResponseEntity.ok()
