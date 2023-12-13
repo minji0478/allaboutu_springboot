@@ -126,10 +126,24 @@ public class NoticeService {
         return  noticeDtoList;
     }
 
-    public NoticeDto createNotice(Notice notice, MultipartFile file) {
+    //공지 글 작성
+    public NoticeDto createNotice(NoticeDto noticeDto, MultipartFile file) {
+        Notice notice = new Notice();
+
+        Member member = memberRepository.findByUserId(noticeDto.getUserId());
+
         Long maxNum = noticeRepository.findMaxNoticeNumber();
-        Long noticeNum = maxNum== null ? 1L : maxNum + 1 ;
+        Long noticeNum = (maxNum== null) ? 1L : maxNum + 1L ;
+        if(noticeDto.getImportanceDate() != null) {
+            LocalDateTime importanceDate = LocalDateTime.parse(noticeDto.getImportanceDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            notice.setImportanceDate(importanceDate);
+        }
         notice.setNoticeNum(noticeNum);
+        notice.setUserNum(member.getUserNum());
+        notice.setNoticeTitle(noticeDto.getNoticeTitle());
+        notice.setNoticeContents(noticeDto.getNoticeContents());
+        notice.setCartegory(noticeDto.getCartegory());
+        notice.setImportance(noticeDto.getImportance());
         notice.setWriteDate(LocalDate.now());
         notice.setReadCount(0L);
 
@@ -149,8 +163,8 @@ public class NoticeService {
         }
         Notice saveNotice = noticeRepository.save(notice);
 
-        Member member = memberRepository.findById(notice.getUserNum()).get();
-        NoticeDto noticeDto = NoticeDto.builder()
+
+        NoticeDto resultDto = NoticeDto.builder()
                 .noticeNum(notice.getNoticeNum())
                 .userNum(member.getUserNum())
                 .userName(member.getUserName())
@@ -161,13 +175,13 @@ public class NoticeService {
                 .eventEnd(notice.getEventEnd()!=null ? notice.getEventEnd().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A")
                 .importance(notice.getImportance())
                 .importanceDate(notice.getImportanceDate()!=null ? notice.getImportanceDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A")
-                        .writeDate(notice.getWriteDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+                .writeDate(notice.getWriteDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
                 .modifyDate(notice.getModifyDate() !=null ? notice.getModifyDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A")
                 .originalFileName(notice.getOriginalFileName())
                 .renameFileName(notice.getRenameFileName())
                 .readCount(notice.getReadCount()).build();
 
-        return noticeDto;
+        return resultDto;
     }
     public Notice noticeUp(@RequestBody Notice notice){
         return noticeRepository.save(notice);
