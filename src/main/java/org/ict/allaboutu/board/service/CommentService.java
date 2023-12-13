@@ -105,7 +105,7 @@ public class CommentService {
         MemberDto writerDto = MemberDto.builder()
                 .userNum(writer.getUserNum())
                 .userId(writer.getUserId())
-                .userName(writer.getUsername())
+                .userName(writer.getUserName())
                 .userProfile(writer.getUserProfile())
                 .hashtags(profileHashtags)
                 .build();

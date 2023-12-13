@@ -21,7 +21,7 @@ public class MyPageService {
         }
         MyPageDto myPageDto = MyPageDto.builder()
                 .userId(member.getUserId())
-                .userName(member.getUsername())
+                .userName(member.getUserName())
                 .userPwd(member.getUserPwd())
                 .userEmail(member.getUserEmail())
                 .userPhone(member.getUserPhone())
