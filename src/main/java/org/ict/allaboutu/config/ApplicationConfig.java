@@ -6,6 +6,9 @@ import org.ict.allaboutu.member.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.ReactorResourceFactory;
+import org.springframework.http.client.reactive.ClientHttpConnector;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -16,6 +19,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.net.http.HttpClient;
+import java.time.Duration;
 import java.util.ArrayList;
 
 @Configuration
@@ -53,4 +58,5 @@ public class ApplicationConfig {
             throws Exception {
         return config.getAuthenticationManager();
     }
+
 }
