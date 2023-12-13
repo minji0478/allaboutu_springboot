@@ -7,6 +7,7 @@ import org.ict.allaboutu.personalcolor.domain.UserPersonalColor;
 import org.ict.allaboutu.personalcolor.service.PersonalColorService;
 import org.ict.allaboutu.personalcolor.service.PersonalDto;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -66,24 +67,45 @@ public class PersonalColorController {
         return ResponseEntity.ok(personalColorService.insertPersonal(personalDto));
     }
 
+    private MediaType getContentType(String fileExtension) {
+        switch (fileExtension.toLowerCase()) {
+            case "png":
+                return MediaType.IMAGE_PNG;
+            case "jpg":
+            case "jpeg":
+                return MediaType.IMAGE_JPEG;
+            case "gif":
+                return MediaType.IMAGE_GIF;
+            case "bmp":
+                return MediaType.parseMediaType("image/bmp");
+            case "webp":
+                return MediaType.parseMediaType("image/webp");
+            case "svg":
+                return MediaType.parseMediaType("image/svg+xml");
+            default:
+                return MediaType.APPLICATION_OCTET_STREAM;
+        }
+    }
+
     @GetMapping("/image/{imageName}")
     public ResponseEntity<Resource> getImage(@PathVariable String imageName) throws Exception {
+
         Resource resource = null;
         int retryCount = 0;
         boolean imageFound = false;
-        log.info("여기로도 넘어오니?");
+
         int RETRY_DELAY = 500;
         int MAX_RETRY_COUNT = 500;
-
+        System.out.println("===imageName : " + imageName);
         while (!imageFound && retryCount < MAX_RETRY_COUNT) {
             try {
-                resource = new ClassPathResource("/personal_upload/" + imageName);
+                resource = new FileSystemResource("E:\\poketAi_workspace\\allaboutu_springboot\\src\\main\\resources\\personal_upload\\" + imageName);
                 System.out.println("retryCount : " + retryCount);
                 if (resource.exists()) {
                     imageFound = true;
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                // Handle exception, if needed
             }
 
             if (!imageFound) {
@@ -92,11 +114,14 @@ public class PersonalColorController {
                 retryCount++;
             }
         }
-
+        System.out.println("===imageFound : " + imageFound);
         if (imageFound) {
+            File file = resource.getFile();
+            MediaType mediaType = getContentType(file.getName().substring(file.getName().lastIndexOf(".") + 1));
             return ResponseEntity.ok()
-                    .contentType(MediaType.IMAGE_JPEG)
+                    .contentType(mediaType)
                     .body(new InputStreamResource(resource.getInputStream()));
+
         } else {
             // Image not found, return an appropriate response
             return ResponseEntity.notFound().build();

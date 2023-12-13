@@ -2,6 +2,7 @@ package org.ict.allaboutu.member.service;
 
 import lombok.RequiredArgsConstructor;
 import org.ict.allaboutu.member.domain.Member;
+import org.ict.allaboutu.member.domain.UserRole;
 import org.ict.allaboutu.member.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ public class MemberService {
         member.setReportCount(0L);
         member.setEnrollType("normal");
         member.setAccount("N");
+        member.setRole(UserRole.USER);
         Member savedMember = memberRepository.save(member);
 
         return MemberDto.builder()
@@ -38,6 +40,7 @@ public class MemberService {
                 .admin(savedMember.getAdmin())
                 .account(savedMember.getAccount())
                 .reportCount(savedMember.getReportCount())
+                .role(savedMember.getRole())
                 .build();
     }
 
@@ -60,6 +63,7 @@ public class MemberService {
                 .admin(member.getAdmin())
                 .account(member.getAccount())
                 .reportCount(member.getReportCount())
+                .role(member.getRole())
                 .build();
     }
 

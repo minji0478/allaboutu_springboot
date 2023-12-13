@@ -94,10 +94,10 @@ public class NoticeController {
 
     @PostMapping
     public ResponseEntity<NoticeDto> createNotice(
-            @RequestPart("notice") Notice notice,
+            @RequestPart("notice") NoticeDto noticeDto,
             @RequestPart(value = "file", required = false) MultipartFile file) throws Exception {
 
-        return ResponseEntity.ok(noticeService.createNotice(notice, file));
+        return ResponseEntity.ok(noticeService.createNotice(noticeDto, file));
 
     }
 

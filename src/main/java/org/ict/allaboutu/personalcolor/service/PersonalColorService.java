@@ -55,6 +55,7 @@ public class PersonalColorService {
                 .personalDate(date)
                 .personalImg(personalDto.getPersonalImg())
                 .personalReimg(personalDto.getPersonalReimg())
+                .personalNum(personalDto.getPersonalNum())
                 .build();
 
         UserPersonalColor saveResult = userpersonalColorRepository.save(userPersonalColor);

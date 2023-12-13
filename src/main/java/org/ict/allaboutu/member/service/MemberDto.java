@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.ict.allaboutu.member.domain.ProfileHashtag;
+import org.ict.allaboutu.member.domain.UserRole;
 
 import java.util.List;
 
@@ -27,6 +28,7 @@ public class MemberDto {
     private String account;
     private Long reportCount;
     private String userBirth;
+    private UserRole role;
 
     private List<ProfileHashtag> hashtags;
 }
