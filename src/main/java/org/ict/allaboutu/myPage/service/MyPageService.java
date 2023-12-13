@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.allaboutu.member.domain.Member;
 import org.ict.allaboutu.member.repository.MemberRepository;
+import org.ict.allaboutu.member.service.MemberDto;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -14,34 +16,34 @@ public class MyPageService {
 
     private final MemberRepository memberRepository;
 
-    public MyPageDto getMyPage(Long userNum){
-        Member member = memberRepository.findById(userNum).get();
+
+    @Transactional
+    public MemberDto updateUser(String userId, Member updateMember) {
+        Member member = memberRepository.findByUserId(userId);
+
         if (member == null){
             return null;
+
         }
-        MyPageDto myPageDto = MyPageDto.builder()
+        if(updateMember.getUserPhone() != null){
+            member.setUserPhone(updateMember.getUserPhone());
+        }
+
+        if(updateMember.getUserPwd() != null) {
+            String hashedPassword = new BCryptPasswordEncoder().encode(updateMember.getUserPwd());
+            member.setUserPwd(hashedPassword);
+        }
+
+        memberRepository.save(member);
+
+        MemberDto memberDto = MemberDto.builder()
+                .userNum(member.getUserNum())
                 .userId(member.getUserId())
                 .userName(member.getUserName())
-                .userPwd(member.getUserPwd())
                 .userEmail(member.getUserEmail())
                 .userPhone(member.getUserPhone())
                 .build();
-        return myPageDto;
-
-    }
-
-    @Transactional
-    public MyPageDto updateUser(Long userNum, Member updateMember) {
-        Member member = memberRepository.findById(userNum).get();
-
-        if (member == null){
-            return null;
-        }
-        MyPageDto myPageDto = MyPageDto.builder()
-                .userPwd(member.getUserPwd())
-                .userPhone(member.getUserPhone())
-                .build();
-        return myPageDto;
+        return memberDto;
     }
 
 }

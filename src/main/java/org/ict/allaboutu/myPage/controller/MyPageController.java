@@ -3,10 +3,15 @@ package org.ict.allaboutu.myPage.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.allaboutu.member.domain.Member;
+import org.ict.allaboutu.member.service.MemberDto;
+import org.ict.allaboutu.member.service.MemberService;
 import org.ict.allaboutu.myPage.service.MyPageDto;
 import org.ict.allaboutu.myPage.service.MyPageService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.URLDecoder;
 
 @Slf4j
 @RestController
@@ -14,20 +19,22 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class MyPageController {
 
-    private MyPageService myPageService;
-
-    @GetMapping("/myPage/{userNum}")
-    public ResponseEntity<MyPageDto> getMyPage(@PathVariable Long userNum){
-        MyPageDto myPageDto = myPageService.getMyPage(userNum);
-        return ResponseEntity.ok(myPageDto);
+    private final MyPageService myPageService;
+    private final MemberService memberService;
+    @GetMapping("/myPage/{userId}")
+    public ResponseEntity<MemberDto> getMyPage(@PathVariable String userId)throws Exception{
+        userId =  URLDecoder.decode(userId, "UTF-8");
+        System.out.println("userId : " + userId);
+        MemberDto memberDto = memberService.getMember(userId);
+        return ResponseEntity.ok(memberDto);
     }
 
 
-    @PatchMapping("/myPage/{userNum}")
-    public ResponseEntity<MyPageDto> updateUser(@PathVariable Long userNum, @RequestBody Member updateMember){
-        MyPageDto myPageDto = myPageService.updateUser(userNum,updateMember);
+    @PatchMapping("/myPage/{userId}")
+    public ResponseEntity<MemberDto> updateUser(@PathVariable String userId, @RequestBody Member updateMember){
+        MemberDto memberDto = myPageService.updateUser(userId,updateMember);
 
-        return ResponseEntity.ok(myPageDto);
+        return ResponseEntity.ok(memberDto);
     }
 
 }
