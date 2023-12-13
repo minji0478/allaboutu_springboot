@@ -61,7 +61,7 @@ public class AuthService {
 
 
     private void revokeAllUserTokens(Member member) {
-        List<Tokens> validTokens = tokenRepository.findAllValidTokenByUserId(member.getUsername());
+        List<Tokens> validTokens = tokenRepository.findAllValidTokenByUserId(member.getUserName());
         if (!validTokens.isEmpty()) {
             validTokens.forEach( t-> {
                 t.setExpired(true);
