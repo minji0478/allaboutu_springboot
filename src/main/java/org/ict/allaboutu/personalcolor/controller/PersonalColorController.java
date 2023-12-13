@@ -59,9 +59,10 @@ public class PersonalColorController {
         return new ResponseEntity<>(urlArr, HttpStatus.OK);
     }
 
-    @PostMapping(value = "/insert", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<UserPersonalColor> uploadImage(@RequestParam PersonalDto personalDto) {
+    @PostMapping(value = "/insert", consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<UserPersonalColor> uploadImage(@RequestBody PersonalDto personalDto) {
         log.info("insert 요청왔다");
+        log.info("Received userNum: " + personalDto.getUserNum());
         return ResponseEntity.ok(personalColorService.insertPersonal(personalDto));
     }
 
@@ -82,7 +83,7 @@ public class PersonalColorController {
                     imageFound = true;
                 }
             } catch (Exception e) {
-                // Handle exception, if needed
+                e.printStackTrace();
             }
 
             if (!imageFound) {

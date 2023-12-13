@@ -48,11 +48,11 @@ public class PersonalColorService {
         // 퍼스널 컬러의 가장 큰값을 찾아 거기에 1 더한값을 넣기 위해 처리함!!
         Long maxPersonalNum = userpersonalColorRepository.findPersonalNum();
 
+        LocalDateTime date = LocalDateTime.now();
         UserPersonalColor userPersonalColor = UserPersonalColor.builder()
                 .personalUserNum(maxPersonalNum == null ? 1 : maxPersonalNum + 1)
                 .userNum(personalDto.getUserNum())
-                .personalNum(personalDto.getPersonalNum())
-                .personalDate(personalDto.getPersonalDate())
+                .personalDate(date)
                 .personalImg(personalDto.getPersonalImg())
                 .personalReimg(personalDto.getPersonalReimg())
                 .build();
