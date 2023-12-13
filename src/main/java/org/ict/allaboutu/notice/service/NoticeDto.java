@@ -15,6 +15,7 @@ public class NoticeDto {
 
     private Long noticeNum;
     private Long userNum;
+    private String userId;
     private String userName;
     private String noticeTitle;
     private String noticeContents;
