@@ -31,9 +31,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         List<String> anyList = List.of("/auth/**", "/index.html", "/signup", "/css/**", "/js/**", "/img/**", "/h2-console/**", "/favicon.ico", "/login", "/logout", "/api/**", "/assets/**",
                 "/notices/search", "/notices/imp", "/notices/image/{renameFileName}", "/notices/download/{renameFileName}", "/notices/detail/{noticeNum}", "/boards/search", "/boards/rank", "/boards/image/{imageName}",
-                "/", "/member/{userNum}");
-        List<String> userOnlyList = List.of("/style/upload", "/style/insert", "/style/image/{imageName}", "/member/image/{imageName}", "/personal/upload", "/personal/insert", "/personal/image/{imageName}",
-                "/boards/{boardNum}", "/boards/search", "/cody", "/cody/**", "/member/{userId}");
+                "/", "/member/{userNum}", "/user_profile/**", "/member/image/{imageName}");
+        List<String> userOnlyList = List.of("/style/**", "/personal/**", "/boards/{boardNum}", "/cody", "/cody/**", "/member/{userId}", "/", "/face/**");
         List<String> adminOnlyList = List.of("/reports/{reportNum}", "/reports/**", "/admin/get");
 
 //        log.info("============UserRole.ADMIN.name() : " + UserRole.ADMIN.name());
@@ -48,10 +47,11 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.POST, "/notices").hasAuthority(UserRole.ADMIN.name())
                                 .requestMatchers(HttpMethod.DELETE, "/notices/{noticeNum}").hasAuthority(UserRole.ADMIN.name())
                                 .requestMatchers(HttpMethod.DELETE, "/boards/{boardNum}").access("@AccessService.isBoardAuthor(authentication, #boardNum)")
-                                .requestMatchers(HttpMethod.DELETE, "/boards/{boardNum}/likes/{userNum}").access("@boardAccessService.isLikeOwner(authentication, #boardNum, #userNum)")
-                                .requestMatchers(HttpMethod.DELETE, "/boards/{boardNum}/comments/{commentNum}").access("@boardAccessService.isCommentAuthor(authentication, #boardNum, #commentNum)")
+                                .requestMatchers(HttpMethod.DELETE, "/boards/{boardNum}/likes/{userNum}").access("@AccessService.isLikeOwner(authentication, #boardNum, #userNum)")
+                                .requestMatchers(HttpMethod.DELETE, "/boards/{boardNum}/comments/{commentNum}").access("@AccessService.isCommentAuthor(authentication, #boardNum, #commentNum)")
                                 .requestMatchers(HttpMethod.PATCH, "/boards/{boardNum}").access("@AccessService.isBoardAuthor(authentication, #boardNum)")
                                 .requestMatchers(HttpMethod.PATCH, "/boards/{boardNum}/comments/{commentNum}").access("@AccessService.isCommentAuthor(authentication, #boardNum, #commentNum)")
+                                .requestMatchers(HttpMethod.PATCH, "/notices/{noticeNum}").hasAuthority(UserRole.ADMIN.name())
                                 .requestMatchers(anyList.toArray(new String[0])).permitAll()
                                 .requestMatchers(userOnlyList.toArray(new String[0])).hasAnyAuthority(UserRole.USER.name())
                                 .requestMatchers(adminOnlyList.toArray(new String[0])).hasAuthority(UserRole.ADMIN.name())
@@ -70,4 +70,5 @@ public class SecurityConfig {
         return http.build();
 
     }
+
 }

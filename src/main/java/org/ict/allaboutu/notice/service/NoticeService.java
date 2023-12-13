@@ -284,6 +284,9 @@ public class NoticeService {
         Notice notice = noticeRepository.findById(noticeNum).orElse(null);
         if (notice != null) {
             // 존재하면 삭제
+            String savePath = System.getProperty("user.dir") + "/src/main/resources/notice_upload/";
+            File deleteFile = new File(savePath + notice.getRenameFileName());
+            deleteFile.delete();
             noticeRepository.delete(notice);
         }
         // 존재하지 않아도 아무런 동작을 하지 않음 (에러를 발생시키거나 예외를 던지는 등의 처리도 가능)

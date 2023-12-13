@@ -68,10 +68,13 @@ public class CommentService {
     }
 
     public CommentDto createComment(Long boardNum, CommentDto commentDto) throws Exception {
+        Long userNum = memberRepository.findByUserId(commentDto.getWriter().getUserId()).getUserNum();
+        Long maxCommentNum = commentRepository.findMaxCommentNum();
+
         Comment comment = Comment.builder()
-                .commentNum(commentRepository.findMaxCommentNum() + 1)
+                .commentNum(maxCommentNum != null ? maxCommentNum + 1L : 1L)
                 .boardNum(commentDto.getBoardNum())
-                .userNum(commentDto.getUserNum())
+                .userNum(userNum)
                 .parentNum(commentDto.getParentNum())
                 .content(commentDto.getContent())
                 .createDate(LocalDateTime.now())
