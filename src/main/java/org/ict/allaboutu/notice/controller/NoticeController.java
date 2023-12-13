@@ -6,6 +6,7 @@ import org.ict.allaboutu.notice.domain.Notice;
 import org.ict.allaboutu.notice.service.NoticeDto;
 import org.ict.allaboutu.notice.service.NoticeService;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -78,9 +79,9 @@ public class NoticeController {
     }
 
 
-    @GetMapping("/image/{renamefileName}")
-    public ResponseEntity<Resource> getImage(@PathVariable String renamefileName) throws Exception {
-        Resource resource = new ClassPathResource("/notice_upload/" + renamefileName);
+    @GetMapping("/image/{renameFileName}")
+    public ResponseEntity<Resource> getImage(@PathVariable String renameFileName) throws Exception {
+        Resource resource = new FileSystemResource("E:\\poketAi_workspace\\allaboutu_springboot\\src\\main\\resources\\notice_upload\\"+ renameFileName);
 
         File file = resource.getFile();
         MediaType mediaType = getContentType(file.getName().substring(file.getName().lastIndexOf(".") + 1));
