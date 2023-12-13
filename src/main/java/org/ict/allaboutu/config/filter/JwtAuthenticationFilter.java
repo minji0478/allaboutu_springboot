@@ -54,24 +54,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (jwtService.isTokenValid(jwt, member) && isTokenValid) {
                 UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(member, null, new ArrayList<>());
+                        new UsernamePasswordAuthenticationToken(member, null, List.of(new SimpleGrantedAuthority(member.getRole().name())));
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
 
         // Jwt Token에서 userId 추출
-        // 추출한 userId로 Member 찾아오기
-        Member member = memberRepository.findByUserId(userEmail);
+
 
         // 추출한 userId로 User 찾아오기
-        UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+
 
         // loginUser 정보로 UsernamePasswordAuthenticationToken 발급
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-
+        Member member = memberRepository.findByUserId(userEmail);
+        UsernamePasswordAuthenticationToken authToken =
+                new UsernamePasswordAuthenticationToken(member, null, List.of(new SimpleGrantedAuthority(member.getRole().name())));
         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authToken);
-
+        // 권한 부여
+        filterChain.doFilter(request, response);
     }
 }
