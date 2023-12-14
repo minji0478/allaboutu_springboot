@@ -11,4 +11,7 @@ public interface AttachmentRepository extends JpaRepository<Attachment, Attachme
 
     @Query(value = "SELECT a FROM Attachment a WHERE a.id.boardNum = :boardNum")
     List<Attachment> findAllByBoardNum(Long boardNum);
+
+    @Query(value = "SELECT MAX(a.id.attachNum) FROM Attachment a WHERE a.id.boardNum = :boardNum")
+    Long findMaxAttachNumByBoardNum(Long boardNum);
 }

@@ -109,7 +109,7 @@ public class BoardService {
         // Attachment 테이블 저장
         List<Attachment> attachments = new ArrayList<>();
         if (files != null) {
-            int idx = 0;
+            Long idx = 0L;
             for (MultipartFile file : files) {
                 try {
                     // 파일 업로드
@@ -159,10 +159,50 @@ public class BoardService {
         List<BoardHashtag> boardHashtags = updateHashtag(hashtagList, board.getBoardNum());
 
         // Attachment 테이블 업데이트
-        deleteAttachment(board.getBoardNum());
-        List<Attachment> attachments = createAttachment(files, board.getBoardNum());
+        List<Attachment> oldAttachments = attachmentRepository.findAllByBoardNum(board.getBoardNum());
+
+        // 1. 기존 첨부파일 리스트에 없는 첨부파일은 DB와 저장소에 추가
+        if (files != null) {
+            Long maxAttachNum = attachmentRepository.findMaxAttachNumByBoardNum(board.getBoardNum());
+            Long idx = maxAttachNum != null ? maxAttachNum + 1L : 0L;
+            for (MultipartFile file : files) {
+                if (!isFileInAttachments(oldAttachments, file.getOriginalFilename())) {
+                    System.out.println("새로 추가된 파일: " + file.getOriginalFilename());
+                    try {
+                        // 파일 업로드
+                        String renameFileName = uploadImage(file, idx);
+
+                        // 업로드 성공 시 DB 저장
+                        Attachment attachment = Attachment.builder()
+                                .id(new AttachmentPK(board.getBoardNum(), Long.valueOf(idx)))
+                                .originalFileName(file.getOriginalFilename())
+                                .renameFileName(renameFileName)
+                                .build();
+                        attachmentRepository.save(attachment);
+
+                        idx++;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+
+        // 2. files에 없는 첨부파일은 DB와 저장소에서 삭제
+        if (oldAttachments != null) {
+            for (Attachment oldAttachment : oldAttachments) {
+                if (!isAttachmentInFiles(files, oldAttachment.getOriginalFileName())) {
+                    System.out.println("삭제된 파일: " + oldAttachment.getOriginalFileName());
+                    String savePath = System.getProperty("user.dir") + "/src/main/resources/board_upload/";
+                    File deleteFile = new File(savePath + oldAttachment.getRenameFileName());
+                    deleteFile.delete();
+                    attachmentRepository.delete(oldAttachment);
+                }
+            }
+        }
 
         // BoardDto 객체 생성
+        List<Attachment> attachments = attachmentRepository.findAllByBoardNum(board.getBoardNum());
         BoardDto boardDto = BoardDto.builder()
                 .boardNum(savedBoard.getBoardNum())
                 .userNum(savedBoard.getUserNum())
@@ -176,7 +216,7 @@ public class BoardService {
         return boardDto;
     }
 
-    public String uploadImage(MultipartFile file, int index) throws Exception {
+    public String uploadImage(MultipartFile file, Long index) throws Exception {
         String originalFileName = file.getOriginalFilename();
         String renameFileName = null;
 
@@ -343,49 +383,32 @@ public class BoardService {
         return boardHashtags;
     }
 
-    // 첨부파일 테이블 등록
-    public List<Attachment> createAttachment(List<MultipartFile> files, Long boardNum) throws Exception {
-        List<Attachment> attachments = new ArrayList<>();
+    public boolean isAttachmentInFiles(List<MultipartFile> files, String fileName) {
+        if (files == null) {
+            return false;
+        }
 
-        if (files != null) {
-            int idx = 0;
-            for (MultipartFile file : files) {
-                try {
-                    // 파일 업로드
-                    String renameFileName = uploadImage(file, idx);
-
-                    // 업로드 성공 시 DB 저장
-                    Attachment attachment = Attachment.builder()
-                            .id(new AttachmentPK(boardNum, Long.valueOf(idx)))
-                            .originalFileName(file.getOriginalFilename())
-                            .renameFileName(renameFileName)
-                            .build();
-
-                    attachmentRepository.save(attachment);
-
-                    attachments.add(attachment);
-                    idx++;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        for (MultipartFile file : files) {
+            if (file.getOriginalFilename().equals(fileName)) {
+                return true;
             }
         }
 
-        return attachments;
+        return false;
     }
 
-    // 첨부파일 삭제
-    public void deleteAttachment(Long boardNum) throws Exception {
-        List<Attachment> oldAttachments = attachmentRepository.findAllByBoardNum(boardNum);
+    public boolean isFileInAttachments(List<Attachment> attachments, String fileName) {
+        if (attachments == null) {
+            return false;
+        }
 
-        if (oldAttachments != null) {
-            for (Attachment oldAttachment : oldAttachments) {
-                String savePath = System.getProperty("user.dir") + "/src/main/resources/board_upload/";
-                File deleteFile = new File(savePath + oldAttachment.getRenameFileName());
-                deleteFile.delete();
+        for (Attachment attachment : attachments) {
+            if (attachment.getOriginalFileName().equals(fileName)) {
+                return true;
             }
         }
-    }
 
+        return false;
+    }
 
 }
