@@ -14,6 +14,7 @@ import org.ict.allaboutu.member.repository.MemberRepository;
 import org.ict.allaboutu.oauth.vo.AuthResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -42,8 +43,11 @@ public class AuthService {
         System.out.println("\n\nlogin 테스트 2 : " + member.getUserId());
         System.out.println("\n\nlogin 테스트 2 : " + encodedPassword);
 
+        if ("Y".equals(savedMember.getAccount())) {
+            throw new AccessDeniedException("Account is locked");
+        }
         // matches 메서드를 사용하여 비밀번호를 확인합니다.
-        if (passwordEncoder.matches(member.getUserPwd(), encodedPassword)) {
+        else if (passwordEncoder.matches(member.getUserPwd(), encodedPassword)) {
             // 인증이 성공하면 나머지 코드를 진행합니다.
             // member.setAdmin(savedMember.getAdmin());
             // member.setUserNum(savedMember.getUserNum());
@@ -57,8 +61,6 @@ public class AuthService {
             throw new BadCredentialsException("Invalid password");
         }
     }
-
-
 
     private void revokeAllUserTokens(Member member) {
         List<Tokens> validTokens = tokenRepository.findAllValidTokenByUserId(member.getUserName());

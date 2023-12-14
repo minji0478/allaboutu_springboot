@@ -13,6 +13,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.ui.Model;
@@ -47,16 +48,28 @@ public class MemberController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<MemberDto> signup(
-            @RequestBody Member member
-    ) {
+    public ResponseEntity<MemberDto> signup(@RequestBody Member member) {
         log.info("/signup : " + member.toString());
 
         String rawPassword = member.getUserPwd();
+
+        // 비밀번호 유효성 검사
+        if (!isValidPassword(rawPassword)) {
+            // 유효성 검사에 실패한 경우 에러 응답 반환 또는 예외 처리
+            return ResponseEntity.badRequest().build();
+        }
+
         String encPassword = passwordEncoder.encode(rawPassword);
         member.setUserPwd(encPassword);
 
         return ResponseEntity.ok(memberService.signup(member));
+    }
+
+    private boolean isValidPassword(String password) {
+        // 비밀번호의 유효성 검사 로직을 추가
+        // 여기서는 8~16자의 길이, 영문 대소문자, 숫자, 특수문자가 각각 1개 이상 포함되어 있는지 확인합니다.
+        String passwordPattern = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,16}$";
+        return password != null && password.matches(passwordPattern);
     }
 
     @PostMapping("/member/findId")
@@ -69,26 +82,6 @@ public class MemberController {
         memberService.mailSend(dto);
         return ResponseEntity.noContent().build();
     }
-
-//    /* 회원가입 */
-//    @PostMapping("/auth/joinProc")
-//    public String joinProc(@Valid UserRequestDto userDto, Errors errors, Model model) {
-//        if (errors.hasErrors()) {
-//            /* 회원가입 실패시 입력 데이터 값을 유지 */
-//            model.addAttribute("userDto", userDto);
-//
-//            /* 유효성 통과 못한 필드와 메시지를 핸들링 */
-//            Map<String, String> validatorResult = userService.validateHandling(errors);
-//            for (String key : validatorResult.keySet()) {
-//                model.addAttribute(key, validatorResult.get(key));
-//            }
-//                /* 회원가입 페이지로 다시 리턴 */
-//                return "/user/user-join";
-//        }
-//            userService.userJoin(userDto);
-//            return "redirect:/auth/login";
-//
-//    }
 
 }
 

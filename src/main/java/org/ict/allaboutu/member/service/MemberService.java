@@ -7,8 +7,12 @@ import org.ict.allaboutu.member.repository.MemberRepository;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.Errors;
+import org.springframework.validation.FieldError;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Service
@@ -96,4 +100,5 @@ public class MemberService {
 
         mailSender.send(message);
     }
+
 }
