@@ -135,13 +135,11 @@ public class NoticeService {
 
         Long maxNum = noticeRepository.findMaxNoticeNumber();
         Long noticeNum = (maxNum== null) ? 1L : maxNum + 1L ;
-        try {
-            LocalDateTime importanceDate = LocalDateTime.parse(noticeDto.getImportanceDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        System.out.println("필독 날짜:" + noticeDto.getImportanceDate());
+        if(noticeDto.getImportanceDate() != null){
+            LocalDate importanceDate = LocalDate.parse(noticeDto.getImportanceDate(),DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             notice.setImportanceDate(importanceDate);
-        } catch (DateTimeParseException ex) {
-           ex.printStackTrace();
         }
-
         notice.setNoticeNum(noticeNum);
         notice.setUserNum(member.getUserNum());
         notice.setNoticeTitle(noticeDto.getNoticeTitle());
@@ -230,29 +228,40 @@ public class NoticeService {
         // 이미지가 변경되었을 때만 기존 파일 삭제 및 새로운 파일 저장
         if (oldNotice != null) {
             if (file != null) {
-                // 기존 파일 삭제
-                if (oldNotice.getRenameFileName() != null) {
-                    String savePath = System.getProperty("user.dir") + "/src/main/resources/notice_upload/";
-                    File deleteFile = new File(savePath, oldNotice.getRenameFileName());
-                    deleteFile.delete();
-                }
+                if (!file.getOriginalFilename().equals(oldNotice.getOriginalFileName())) {
+                    // 기존 파일 삭제
+                    if (oldNotice.getRenameFileName() != null) {
+                        String savePath = System.getProperty("user.dir") + "/src/main/resources/notice_upload/";
+                        File deleteFile = new File(savePath, oldNotice.getRenameFileName());
+                        deleteFile.delete();
+                    }
 
-                // 새로운 파일 저장
-                String renameFileName = null;
-                try {
-                    renameFileName = FileNameChange.change(file.getOriginalFilename(), "yyyyMMddHHmmss");
-                    String savePath = System.getProperty("user.dir") + "/src/main/resources/notice_upload/";
-                    File saveFile = new File(savePath, renameFileName);
-                    file.transferTo(saveFile);
-                    notice.setOriginalFileName(file.getOriginalFilename());
-                    notice.setRenameFileName(renameFileName);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    // 새로운 파일 저장
+                    String renameFileName = null;
+                    try {
+                        renameFileName = FileNameChange.change(file.getOriginalFilename(), "yyyyMMddHHmmss");
+                        String savePath = System.getProperty("user.dir") + "/src/main/resources/notice_upload/";
+                        File saveFile = new File(savePath, renameFileName);
+                        file.transferTo(saveFile);
+                        notice.setOriginalFileName(file.getOriginalFilename());
+                        notice.setRenameFileName(renameFileName);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    // 이미지 변경이 없는 경우 기존 값을 그대로 사용
+                    notice.setOriginalFileName(oldNotice.getOriginalFileName());
+                    notice.setRenameFileName(oldNotice.getRenameFileName());
                 }
             } else {
-                // 이미지 변경이 없는 경우 기존 값을 그대로 사용
-                notice.setOriginalFileName(oldNotice.getOriginalFileName());
-                notice.setRenameFileName(oldNotice.getRenameFileName());
+                // 첨부 파일을 삭제했을 경우, 저장된 파일 삭제
+                String savePath = System.getProperty("user.dir") + "/src/main/resources/notice_upload/";
+                File deleteFile = new File(savePath, oldNotice.getRenameFileName());
+                deleteFile.delete();
+
+                // DB에 File 이름을 null로 저장
+                notice.setOriginalFileName(null);
+                notice.setRenameFileName(null);
             }
 
             // 나머지 필드 업데이트
@@ -264,7 +273,7 @@ public class NoticeService {
             notice.setImportance(oldNotice.getImportance());
             notice.setImportanceDate(oldNotice.getImportanceDate());
             notice.setWriteDate(oldNotice.getWriteDate());
-            notice.setModifyDate(LocalDateTime.now());
+            notice.setModifyDate(LocalDate.now());
             notice.setReadCount(oldNotice.getReadCount());
 
             // Notice 테이블 저장
