@@ -63,7 +63,6 @@ dependencies {
 	// https://mvnrepository.com/artifact/org.modelmapper/modelmapper
 	implementation 'org.modelmapper:modelmapper:3.1.1'
 
-
 }
 
 tasks.named('test') {

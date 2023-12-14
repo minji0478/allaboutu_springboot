@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.ict.allaboutu.cody.service.CodyDto;
 import org.ict.allaboutu.cody.service.CodyService;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -15,6 +16,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.File;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -41,9 +44,32 @@ public class CodyController {
 
     @GetMapping("/image/{imageName}")
     public ResponseEntity<Resource> getImage(@PathVariable String imageName) throws Exception {
-        Resource resource = new ClassPathResource("/cody_upload/" + imageName);
+        Resource resource = new FileSystemResource("E:\\poketAi_workspace\\allaboutu_springboot\\src\\main\\resources\\cody_upload\\" + imageName);
+
+        File file = resource.getFile();
+        MediaType mediaType = getContentType(file.getName().substring(file.getName().lastIndexOf(".") + 1));
         return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_JPEG)
+                .contentType(mediaType)
                 .body(new InputStreamResource(resource.getInputStream()));
+    }
+
+    private MediaType getContentType(String fileExtension) {
+        switch (fileExtension.toLowerCase()) {
+            case "png":
+                return MediaType.IMAGE_PNG;
+            case "jpg":
+            case "jpeg":
+                return MediaType.IMAGE_JPEG;
+            case "gif":
+                return MediaType.IMAGE_GIF;
+            case "bmp":
+                return MediaType.parseMediaType("image/bmp");
+            case "webp":
+                return MediaType.parseMediaType("image/webp");
+            case "svg":
+                return MediaType.parseMediaType("image/svg+xml");
+            default:
+                return MediaType.APPLICATION_OCTET_STREAM;
+        }
     }
 }

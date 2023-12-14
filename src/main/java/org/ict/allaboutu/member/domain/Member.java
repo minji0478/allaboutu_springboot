@@ -5,6 +5,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -23,30 +26,33 @@ public class Member {
     private Long userNum;
 
     @Column(name = "USER_ID")
-    @NotBlank(message = "아이디는 필수 항목입니다.")
-    @UserIdValidation(message = "아이디에 'admin'을 포함할 수 없습니다.")
+    @NotBlank(message = "*아이디는 필수 항목입니다.*")
+    @Pattern(regexp = "^(?!.*admin).*$", message = "*아이디는 'admin'을 포함할 수 없습니다.*")
     private String userId;
 
     @Column(name = "USER_NAME")
-    @NotBlank(message = "이름은 필수 항목입니다.")
-    @UserNameValidation(message = "이름은 6글자 이상으로 만들 수 없습니다.")
+    @NotBlank(message = "*이름은 필수 항목입니다.*")
+//    @Pattern(regexp = "^[가-힣]{2,4}$", message = "*이름은 2글자에서 4글자 사이어야 합니다.*")
+    @Size(min = 2, max = 4, message = "*이름은 2글자에서 4글자 사이어야 합니다.*")
+    @Pattern(regexp = "^(?!.*[가-힣]*관리자[가-힣]*$)", message = "*이름에 '관리자'를 포함할 수 없습니다.*")
     private String userName;
 
     @Column(name = "USER_PWD")
-    @NotBlank(message = "비밀번호는 필수 항목입니다.")
-    @UserPwdValidation(message = "비밀번호에는 특수문자가 포함되어야 합니다.")
+    @NotBlank(message = "*비밀번호는 필수 항목입니다.*")
+    @Pattern(regexp = "(?=.*[0-9])(?=.*[a-zA-Z])(?=.*\\W)(?=\\S+$).{8,16}", message = "*비밀번호는 8~16자 영문 대 소문자, 숫자, 특수문자를 사용하세요.*")
     private String userPwd;
 
     @Column(name = "USER_EMAIL")
-    @NotBlank(message = "이메일은 필수 항목입니다.")
+    @NotBlank(message = "*이메일은 필수 항목입니다.*")
+    @Pattern(regexp = "^(?:\\w+\\.?)*\\w+@(?:\\w+\\.)+\\w+$", message = "*이메일 형식이 올바르지 않습니다.*")
     private String userEmail;
 
     @Column(name = "USER_GENDER")
-    @NotBlank(message = "성별은 필수 항목입니다.")
+    @NotBlank(message = "*성별은 필수 항목입니다.*")
     private String userGender;
 
     @Column(name = "USER_PHONE")
-    @NotBlank(message = "전화번호는 필수 항목입니다.")
+    @NotBlank(message = "*전화번호는 필수 항목입니다.*")
     private String userPhone;
 
     @Column(name = "USER_PROFILE")
@@ -68,6 +74,7 @@ public class Member {
     private Long reportCount;
 
     @Column(name = "USER_BIRTH")
+    @Past(message = "*생년월일은 현재 날짜보다 이전이어야 합니다.*")
     private LocalDateTime userBirth;
 
     @Column(name = "ROLE")
