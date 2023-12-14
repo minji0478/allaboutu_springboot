@@ -6,7 +6,6 @@ import org.ict.allaboutu.common.FileNameChange;
 import org.ict.allaboutu.personalcolor.domain.UserPersonalColor;
 import org.ict.allaboutu.personalcolor.service.PersonalColorService;
 import org.ict.allaboutu.personalcolor.service.PersonalDto;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
