@@ -31,9 +31,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final TokenRepository tokenRepository;
     private final MemberRepository memberRepository;
 
-    private static final int ACCESS_EXPIRED = 701;
-    private static final int REFRESH_EXPIRED = 702;
-    private static final int DOUBLE_EXPIRED = 703;
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
@@ -60,12 +57,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        // Jwt Token에서 userId 추출
-
-
-        // 추출한 userId로 User 찾아오기
-
-
         // loginUser 정보로 UsernamePasswordAuthenticationToken 발급
         Member member = memberRepository.findByUserId(userEmail);
         UsernamePasswordAuthenticationToken authToken =
@@ -74,5 +65,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(authToken);
         // 권한 부여
         filterChain.doFilter(request, response);
+
     }
 }

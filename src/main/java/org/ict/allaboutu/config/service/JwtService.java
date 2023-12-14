@@ -47,10 +47,16 @@ public class JwtService {
     }
 
     public String generateRefreshToken(Member member) {
+//        if (member.getAccount().equals("Y")) {
+//            return null;
+//        }
         return generateRefreshToken(new HashMap<>(), member);
     }
 
     public String generateRefreshToken(Map<String, Object> extraClaims, Member member) {
+//       if (member.getAccount().equals("Y")) {
+//            return null;
+//        }
         return buildToken(extraClaims, member, refreshExpiration);
     }
 

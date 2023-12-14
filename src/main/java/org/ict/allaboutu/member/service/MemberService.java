@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.ict.allaboutu.member.domain.Member;
 import org.ict.allaboutu.member.domain.UserRole;
 import org.ict.allaboutu.member.repository.MemberRepository;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -13,6 +15,8 @@ import java.time.LocalDateTime;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final JavaMailSender mailSender;
+    private static final String FROM_ADDRESS = "allaboutu.mailservice@gmail.com";
 
     public MemberDto signup(Member member) {
 
@@ -46,9 +50,7 @@ public class MemberService {
 
     public MemberDto getMember(String userId) {
         Member member = memberRepository.findByUserId(userId);
-        if (member == null) {
-            return null;
-        }
+
         return MemberDto.builder()
                 .userNum(member.getUserNum())
                 .userId(member.getUserId())
@@ -69,5 +71,29 @@ public class MemberService {
 
     public String getUserId(Long userNum) {
         return memberRepository.findById(userNum).get().getUserId();
+    }
+
+    public MailDto createMailForId(String userEmail){
+        Member member = memberRepository.findByUserEmail(userEmail);
+
+        MailDto dto = new MailDto();
+        dto.setAddress(userEmail);
+        dto.setTitle("ALLABOUTU 아이디 찾기 안내 메일");
+        dto.setMessage("안녕하세요. ALLABOUTU 아이디 찾기 관련 안내 이메일 입니다.\n"
+                + "[" + member.getUserName() + "]" +"님의 아이디는 "
+                + member.getUserId() + " 입니다.");
+
+        return dto;
+    }
+
+    public void mailSend(MailDto mailDto){
+        System.out.println("이메일 전송 완료!");
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(mailDto.getAddress());
+        message.setFrom(MemberService.FROM_ADDRESS);
+        message.setSubject(mailDto.getTitle());
+        message.setText(mailDto.getMessage());
+
+        mailSender.send(message);
     }
 }

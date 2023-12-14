@@ -1,10 +1,15 @@
 package org.ict.allaboutu.member.service;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.ict.allaboutu.member.domain.ProfileHashtag;
+import org.ict.allaboutu.member.domain.UserIdValidation;
 import org.ict.allaboutu.member.domain.UserRole;
 
 import java.util.List;
@@ -29,6 +34,5 @@ public class MemberDto {
     private Long reportCount;
     private String userBirth;
     private UserRole role;
-
     private List<ProfileHashtag> hashtags;
 }
