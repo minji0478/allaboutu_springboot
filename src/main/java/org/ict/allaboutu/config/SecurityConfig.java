@@ -32,8 +32,8 @@ public class SecurityConfig {
         List<String> anyList = List.of("/auth/**", "/index.html", "/signup", "/css/**", "/js/**", "/img/**", "/h2-console/**", "/favicon.ico", "/login", "/logout", "/api/**", "/assets/**",
                 "/notices/search", "/notices/imp", "/notices/image/{renameFileName}", "/notices/download/{renameFileName}", "/notices/detail/{noticeNum}", "/boards/search", "/boards/rank", "/boards/image/{imageName}",
 
-                "/", "/member/{userNum}", "/user_profile/**", "/member/image/{imageName}", "/style/image/{imageName}", "/personal/image/{imageName}", "/face/image/{imageName}", "/cody/image/{imageName}");
-        List<String> userOnlyList = List.of("/style/**", "/personal/**", "/boards/{boardNum}", "/cody/**", "/member/{userId}", "/", "/face/**", "/myPage/**");
+                "/", "/member/{userId}", "/user_profile/**", "/member/image/{imageName}", "/style/image/{imageName}", "/personal/image/{imageName}", "/face/image/{imageName}", "/cody/image/{imageName}");
+        List<String> userOnlyList = List.of("/style/**", "/personal/**", "/boards/{boardNum}", "/cody/**", "/member/{userId}", "/", "/face/**", "/myPage/**", "/upload/**");
         List<String> adminOnlyList = List.of("/reports/{reportNum}", "/reports/**", "/admin/get");
 
 //        log.info("============UserRole.ADMIN.name() : " + UserRole.ADMIN.name());
@@ -43,15 +43,15 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/boards/{boardNum}", "/boards/{boardNum}/likes/{userNum}", "/boards/{boardNum}/comments").authenticated()
-                                .requestMatchers(HttpMethod.POST, "/boards", "/boards/{boardNum}/reports", "/boards/{boardNum}/likes/{userNum}", "/boards/{boardNum}/comments").authenticated()
+                                .requestMatchers(HttpMethod.GET, "/boards/{boardNum}", "/boards/{boardNum}/likes/{userId}", "/boards/{boardNum}/comments").authenticated()
+                                .requestMatchers(HttpMethod.POST, "/boards", "/boards/{boardNum}/reports", "/boards/{boardNum}/likes", "/boards/{boardNum}/comments").authenticated()
                                 .requestMatchers(HttpMethod.POST, "/notices").hasAuthority(UserRole.ADMIN.name())
                                 .requestMatchers(HttpMethod.DELETE, "/notices/{noticeNum}").hasAuthority(UserRole.ADMIN.name())
-                                .requestMatchers(HttpMethod.DELETE, "/boards/{boardNum}").access("@AccessService.isBoardAuthor(authentication, #boardNum)")
-                                .requestMatchers(HttpMethod.DELETE, "/boards/{boardNum}/likes/{userNum}").access("@AccessService.isLikeOwner(authentication, #boardNum, #userNum)")
-                                .requestMatchers(HttpMethod.DELETE, "/boards/{boardNum}/comments/{commentNum}").access("@AccessService.isCommentAuthor(authentication, #boardNum, #commentNum)")
-                                .requestMatchers(HttpMethod.PATCH, "/boards/{boardNum}").access("@AccessService.isBoardAuthor(authentication, #boardNum)")
-                                .requestMatchers(HttpMethod.PATCH, "/boards/{boardNum}/comments/{commentNum}").access("@AccessService.isCommentAuthor(authentication, #boardNum, #commentNum)")
+                                .requestMatchers(HttpMethod.DELETE, "/boards/{boardNum}").access("@accessService.isBoardAuthor(authentication, #boardNum)")
+                                .requestMatchers(HttpMethod.DELETE, "/boards/{boardNum}/likes/{userId}").access("accessService.isLikeOwner(authentication, #boardNum, #userId)")
+                                .requestMatchers(HttpMethod.DELETE, "/boards/{boardNum}/comments/{commentNum}").access("@accessService.isCommentAuthor(authentication, #boardNum, #commentNum)")
+                                .requestMatchers(HttpMethod.PATCH, "/boards/{boardNum}").access("@accessService.isBoardAuthor(authentication, #boardNum)")
+                                .requestMatchers(HttpMethod.PATCH, "/boards/{boardNum}/comments/{commentNum}").access("@accessService.isCommentAuthor(authentication, #boardNum, #commentNum)")
                                 .requestMatchers(HttpMethod.PATCH, "/notices/{noticeNum}").hasAuthority(UserRole.ADMIN.name())
                                 .requestMatchers(anyList.toArray(new String[0])).permitAll()
                                 .requestMatchers(userOnlyList.toArray(new String[0])).hasAnyAuthority(UserRole.USER.name())
