@@ -22,6 +22,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 @Slf4j
@@ -134,10 +135,13 @@ public class NoticeService {
 
         Long maxNum = noticeRepository.findMaxNoticeNumber();
         Long noticeNum = (maxNum== null) ? 1L : maxNum + 1L ;
-        if(noticeDto.getImportanceDate() != null) {
+        try {
             LocalDateTime importanceDate = LocalDateTime.parse(noticeDto.getImportanceDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             notice.setImportanceDate(importanceDate);
+        } catch (DateTimeParseException ex) {
+           ex.printStackTrace();
         }
+
         notice.setNoticeNum(noticeNum);
         notice.setUserNum(member.getUserNum());
         notice.setNoticeTitle(noticeDto.getNoticeTitle());
@@ -162,7 +166,6 @@ public class NoticeService {
 
         }
         Notice saveNotice = noticeRepository.save(notice);
-
 
         NoticeDto resultDto = NoticeDto.builder()
                 .noticeNum(notice.getNoticeNum())
