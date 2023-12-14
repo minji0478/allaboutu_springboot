@@ -38,11 +38,11 @@ public class Notice {
     @Column(name="importance")
     private String importance;
     @Column(name="importance_date")
-    private LocalDateTime importanceDate;
+    private LocalDate importanceDate;
     @Column(name="write_date")
     private LocalDate writeDate;
     @Column(name="modify_date")
-    private LocalDateTime modifyDate;
+    private LocalDate modifyDate;
     @Column(name="original_file_name")
     private String originalFileName;
     @Column(name="rename_file_name")
