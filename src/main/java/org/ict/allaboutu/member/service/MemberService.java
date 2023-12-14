@@ -46,7 +46,8 @@ public class MemberService {
 
     public MemberDto getMember(String userId) {
         Member member = memberRepository.findByUserId(userId);
-        if (member == null) {
+        if (member == null || "Y".equals(member.getAccount())) {
+            // 사용자를 찾지 못하거나 계정이 'Y'인 경우 null을 반환하여 로그인이 허용되지 않도록 함
             return null;
         }
         return MemberDto.builder()

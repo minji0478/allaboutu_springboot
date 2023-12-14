@@ -32,8 +32,8 @@ public class SecurityConfig {
         List<String> anyList = List.of("/auth/**", "/index.html", "/signup", "/css/**", "/js/**", "/img/**", "/h2-console/**", "/favicon.ico", "/login", "/logout", "/api/**", "/assets/**",
                 "/notices/search", "/notices/imp", "/notices/image/{renameFileName}", "/notices/download/{renameFileName}", "/notices/detail/{noticeNum}", "/boards/search", "/boards/rank", "/boards/image/{imageName}",
 
-                "/", "/member/{userNum}", "/user_profile/**", "/member/image/{imageName}", "/style/image/{imageName}", "/personal/image/{imageName}", "/face/image/{imageName}");
-        List<String> userOnlyList = List.of("/style/**", "/personal/**", "/boards/{boardNum}", "/cody/**", "/member/{userId}", "/", "/face/**","/myPage/**");
+                "/", "/member/{userNum}", "/user_profile/**", "/member/image/{imageName}", "/style/image/{imageName}", "/personal/image/{imageName}", "/face/image/{imageName}", "/cody/image/{imageName}");
+        List<String> userOnlyList = List.of("/style/**", "/personal/**", "/boards/{boardNum}", "/cody/**", "/member/{userId}", "/", "/face/**", "/myPage/**");
         List<String> adminOnlyList = List.of("/reports/{reportNum}", "/reports/**", "/admin/get");
 
 //        log.info("============UserRole.ADMIN.name() : " + UserRole.ADMIN.name());

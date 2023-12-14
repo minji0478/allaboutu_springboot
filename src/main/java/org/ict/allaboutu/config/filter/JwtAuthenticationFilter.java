@@ -31,9 +31,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final TokenRepository tokenRepository;
     private final MemberRepository memberRepository;
 
-    private static final int ACCESS_EXPIRED = 701;
-    private static final int REFRESH_EXPIRED = 702;
-    private static final int DOUBLE_EXPIRED = 703;
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
@@ -44,6 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
+        if ("N".equals(member.getAccount())) {
         jwt = authHeader.substring(7);
         userEmail = jwtService.extractUsername(jwt);// todo extract the userEmail from JWT token
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -58,21 +56,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
+            } else {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            }
         }
-
-        // Jwt Token에서 userId 추출
-
-
-        // 추출한 userId로 User 찾아오기
-
 
         // loginUser 정보로 UsernamePasswordAuthenticationToken 발급
         Member member = memberRepository.findByUserId(userEmail);
-        UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(member, null, List.of(new SimpleGrantedAuthority(member.getRole().name())));
-        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-        SecurityContextHolder.getContext().setAuthentication(authToken);
-        // 권한 부여
-        filterChain.doFilter(request, response);
+        if ("N".equals(member.getAccount())) {
+            UsernamePasswordAuthenticationToken authToken =
+                    new UsernamePasswordAuthenticationToken(member, null, List.of(new SimpleGrantedAuthority(member.getRole().name())));
+            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+            // 권한 부여
+            filterChain.doFilter(request, response);
+        } else {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+        }
+
     }
 }
