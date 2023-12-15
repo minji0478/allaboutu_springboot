@@ -29,6 +29,9 @@ public class Goods {
     @Column(name = "GOODS_IMG")
     private String goodsImg;
 
+    @Column(name = "GOODS_REIMG")
+    private String goodsReImg;
+
     @Column(name = "GOODS_PRICE")
     private String goodsPrice;
 
@@ -37,4 +40,7 @@ public class Goods {
 
     @Column(name = "GOODS_LINK")
     private String goodsLink;
+
+    @Column(name = "BRAND_NAME")
+    private String brandName;
 }

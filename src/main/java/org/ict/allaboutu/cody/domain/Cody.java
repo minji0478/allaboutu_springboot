@@ -6,8 +6,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.*;
 
-import java.sql.Date;
-
 @Getter
 @Setter
 @ToString
@@ -35,6 +33,9 @@ public class Cody {
 
     @Column(name = "model_img")
     private String modelImg;
+
+    @Column(name = "model_reimg")
+    private String modelReImg;
 
     @Column(name = "model_height")
     private long modelHeight;
