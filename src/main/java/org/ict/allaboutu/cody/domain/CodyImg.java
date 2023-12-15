@@ -24,4 +24,7 @@ public class CodyImg {
 
     @Column(name = "cody_img")
     private String codyImg;
+
+    @Column(name = "cody_reimg")
+    private String codyReImg;
 }

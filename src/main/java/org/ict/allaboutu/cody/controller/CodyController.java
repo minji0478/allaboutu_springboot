@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.allaboutu.cody.service.CodyDto;
 import org.ict.allaboutu.cody.service.CodyService;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -72,4 +71,41 @@ public class CodyController {
                 return MediaType.APPLICATION_OCTET_STREAM;
         }
     }
+//// 코디랑 코디이미지 추가해주는 컨트롤러 리턴을 두개 한번에 해야하는데 방법을 모르겠어요
+//    @PostMapping
+//    public ResponseEntity<CodyDto> createCody(
+//        @RequestPart("cody") CodyDto codyDto,
+//        @RequestPart(value = "codyimgs", required = false) List<MultipartFile> files,
+//        @RequestPart(value = "cody", required = false) MultipartFile file
+//    ) throws Exception {
+//    CodyDto createCodyImg = codyService.createCodyImg(codyDto, files);
+//
+//    CodyDto createCody = codyService.createCody(codyDto, file);
+//
+//    return ResponseEntity.ok(createCodyImg);
+//    }
+//
+//    // 상품 이미지 추가하는 컨트롤러
+//    @PostMapping
+//    public ResponseEntity<GoodsDto> createGoods(
+//        @RequestPart("goods") CodyDto codyDto,
+//        @RequestPart(value = "cody", required = false) MultipartFile file) throws Exception {
+//
+//    return ResponseEntity.ok(codyService.createGoods(codyDto, file));
+//    }
+//
+//
+//    // 코디이미지 삭제하는 컨트롤러
+//    @DeleteMapping("/{codyNum}")
+//    public ResponseEntity<Void> deleteCody(@PathVariable Long codyNum) throws Exception {
+//        codyService.deleteCody(codyNum);
+//        return ResponseEntity.noContent().build();
+//    }
+//
+//    // 상품이미지 삭제하는 컨트롤러
+//    @DeleteMapping("/{goodsNum}")
+//    public ResponseEntity<Void> deleteGoods(@PathVariable Long goodsNum) throws Exception {
+//        codyService.deleteGoods(goodsNum);
+//        return ResponseEntity.noContent().build();
+//    }
 }

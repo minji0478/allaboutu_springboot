@@ -12,4 +12,7 @@ import java.util.List;
 public interface GoodsRepository extends JpaRepository<Goods, Long> {
     @Query("select c from Goods c where c.codyNum = :codyNum order by c.goodsNum desc")
     List<Goods> findAllByCodyNum(@Param("codyNum") Long codyNum);
+
+    @Query(value="select MAX (g.goodsNum) from Goods g")
+    Long findMaxGoodsNumber();
 }
