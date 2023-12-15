@@ -40,8 +40,6 @@ public class Member {
 
     @Column(name = "USER_PWD")
     @NotBlank(message = "*비밀번호는 필수 항목입니다.*")
-//    @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[!@#$%^&*(),.?\":{}|<>])(?=\\S+$).{8,16}$", message = "*비밀번호는 8~16자 영문 대 소문자, 숫자, 특수문자를 사용하세요.*")
-//    @Pattern(regexp = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[~?!@#$%^&*_-]).{5,16}$", message = "*비밀번호는 8~16자 영문 대 소문자, 숫자, 특수문자를 사용하세요.*")
     private String userPwd;
 
     @Column(name = "USER_EMAIL")
