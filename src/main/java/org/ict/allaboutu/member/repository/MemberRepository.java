@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
@@ -17,6 +19,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query(value = "SELECT MAX(m.userNum) FROM Member m")
     Long findMaxUserNum();
 
-    Member findByUserEmail(String userEmail);
+    List<Member> findByUserEmail(String userEmail);
 
 }

@@ -25,15 +25,12 @@ public class MailService {
     private final MailRepository mailRepository;
     private final MemberRepository memberRepository;
 
-    public MailDto generateTokenAndSendMail(String userId, String userEmail) {
+    public MailDto generateTokenAndMail(String userId, String userEmail) {
         String token = generateRandomString(6);
-
-        String subject = "AllAboutU 비밀번호 찾기 인증 메일입니다.";
-        String msgBody = "인증번호는 " + token + " 입니다.";
-        sendEmail(userEmail, fromAddress, subject, msgBody);
 
         MailDto mailDto = MailDto.builder()
                 .mailNum(mailRepository.findMaxMailNum().orElse(0L) + 1L)
+                .userId(userId)
                 .userEmail(userEmail)
                 .token(token)
                 .issuedAt(LocalDateTime.now())
@@ -66,6 +63,17 @@ public class MailService {
         mailSender.send(smm);
     }
 
+    public MailDto sendMailWithToken(String userId, String userEmail) {
+        MailDto mailDto = mailRepository.findByUserIdAndUserEmail(userId, userEmail).stream().reduce((a, b) -> a.getIssuedAt().isAfter(b.getIssuedAt()) ? a : b).orElse(null);
+        String token = mailDto.getToken();
+        String subject = "AllAboutU 비밀번호 찾기 인증 메일입니다.";
+        String msgBody = "인증번호는 " + token + " 입니다.";
+
+        sendEmail(userEmail, fromAddress, subject, msgBody);
+
+        return mailDto;
+    }
+
     @Transactional
     public boolean verifyCode(String userId, String userEmail, String verificationCode) throws Exception {
         Member member = memberRepository.findByUserId(userId);
@@ -75,7 +83,7 @@ public class MailService {
             return false;
         }
 
-        List<MailDto> mailDtoList = mailRepository.findByUserEmail(userEmail);
+        List<MailDto> mailDtoList = mailRepository.findByUserIdAndUserEmail(userId, userEmail);
         for (int i = 0; i < mailDtoList.size(); i++) {
             System.out.println("mailDto[" + i + "] : " + mailDtoList.get(i).toString());
         }
@@ -90,5 +98,15 @@ public class MailService {
             mailRepository.save(mailDto);
             return true;
         }
+    }
+
+    public MailDto expireCode(String userId, String userEmail) {
+        MailDto mailDto = mailRepository.findByUserIdAndUserEmail(userId, userEmail).stream().reduce((a, b) -> a.getIssuedAt().isAfter(b.getIssuedAt()) ? a : b).orElse(null);
+
+        if (mailDto != null) {
+            mailDto.setExpired(1L);
+        }
+
+        return mailRepository.save(mailDto);
     }
 }
