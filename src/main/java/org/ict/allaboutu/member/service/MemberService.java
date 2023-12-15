@@ -34,6 +34,8 @@ public class MemberService {
         member.setRole(UserRole.USER);
         Member savedMember = memberRepository.save(member);
 
+
+
         return MemberDto.builder()
                 .userNum(savedMember.getUserNum())
                 .userId(savedMember.getUserId())

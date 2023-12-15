@@ -1,9 +1,9 @@
 package org.ict.allaboutu.member.controller;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.allaboutu.member.domain.Member;
+import org.ict.allaboutu.member.repository.MemberRepository;
 import org.ict.allaboutu.member.service.MailDto;
 import org.ict.allaboutu.member.service.MemberDto;
 import org.ict.allaboutu.member.service.MemberService;
@@ -13,14 +13,10 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-
-import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -29,6 +25,7 @@ import java.util.Map;
 public class MemberController {
 
     private final MemberService memberService;
+    private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
 
     @GetMapping("/member/image/{imageName}")
