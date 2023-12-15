@@ -290,6 +290,7 @@ public class BoardService {
         List<Comment> commentList = commentRepository.findAllByBoardNum(board.getBoardNum());
         List<CommentDto> comments = commentList.stream().map(comment -> {
             MemberDto writerDto = getMemberDto(comment.getUserNum());
+            System.out.println("getBaordDto - commentDto - writerDto: " + writerDto);
 
             return CommentDto.builder()
                     .commentNum(comment.getCommentNum())
@@ -313,6 +314,7 @@ public class BoardService {
         Long likeCount = boardRepository.countLikeByBoardNum(board.getBoardNum());
         String category = boardRepository.findCategoryByCategoryNum(board.getCategoryNum());
         MemberDto writerDto = getMemberDto(board.getUserNum());
+        System.out.println("getBaordDto - writerDto: " + writerDto);
 
         return BoardDto.builder()
                 .boardNum(board.getBoardNum())

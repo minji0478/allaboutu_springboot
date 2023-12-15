@@ -7,7 +7,6 @@ import org.ict.allaboutu.admin.service.ReportDto;
 import org.ict.allaboutu.board.domain.Board;
 import org.ict.allaboutu.board.service.BoardDto;
 import org.ict.allaboutu.board.service.BoardService;
-import org.ict.allaboutu.member.service.MemberService;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -32,7 +31,6 @@ import java.util.List;
 public class BoardController {
 
     private final BoardService boardService;
-    private final MemberService memberService;
 
     // 게시글 목록 조회
     @GetMapping
