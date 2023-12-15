@@ -21,7 +21,6 @@ public class MemberService {
 
         member.setUserNum(memberRepository.findMaxUserNum() + 1L);
         member.setEnrollDate(LocalDateTime.now());
-        member.setAdmin("N");
         member.setAccount("N");
         member.setReportCount(0L);
         member.setEnrollType("normal");
@@ -42,7 +41,6 @@ public class MemberService {
                 .userProfile(savedMember.getUserProfile())
                 .enrollType(savedMember.getEnrollType())
                 .enrollDate(savedMember.getEnrollDate().toString())
-                .admin(savedMember.getAdmin())
                 .account(savedMember.getAccount())
                 .reportCount(savedMember.getReportCount())
                 .role(savedMember.getRole())
@@ -63,7 +61,6 @@ public class MemberService {
                 .userProfile(member.getUserProfile())
                 .enrollType(member.getEnrollType())
                 .enrollDate(member.getEnrollDate().toString())
-                .admin(member.getAdmin())
                 .account(member.getAccount())
                 .reportCount(member.getReportCount())
                 .role(member.getRole())

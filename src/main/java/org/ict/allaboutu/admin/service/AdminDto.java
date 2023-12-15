@@ -25,8 +25,6 @@ public class AdminDto implements Serializable {
 
     private String userEmail;
 
-    private String admin;
-
     private String account;
 
     private Long boardNum;
@@ -44,5 +42,7 @@ public class AdminDto implements Serializable {
     private LocalDateTime deleteDate;
 
     private List<Report> reports;
+
+    private String enrollType;
 
 }

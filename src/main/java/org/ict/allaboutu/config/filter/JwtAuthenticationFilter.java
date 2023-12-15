@@ -8,6 +8,7 @@ import org.ict.allaboutu.member.domain.Member;
 import org.ict.allaboutu.config.repository.TokenRepository;
 import org.ict.allaboutu.config.service.JwtService;
 import org.ict.allaboutu.member.repository.MemberRepository;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,6 +35,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+
+        /* kakao */
+        if (request.getHeader(HttpHeaders.AUTHORIZATION) != null  && request.getHeader(HttpHeaders.AUTHORIZATION).startsWith("Kakao ")) {
+            String loginName = request.getHeader("UserName");
+            Member loginUser = memberRepository.findByUserId(loginName);
+
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                    loginUser.getUserName(), null, List.of(new SimpleGrantedAuthority(loginUser.getRole().name())));
+            authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+            // 권한 부여
+            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            filterChain.doFilter(request, response);
+            return;
+        } /* kakao */
+
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
         final String userEmail; // username
