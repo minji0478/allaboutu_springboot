@@ -19,5 +19,5 @@ public class WebsiteDto {
 
     public String webTitle;
 
-    public Long price;
+    public String price;
 }
