@@ -64,9 +64,6 @@ public class Member {
     @Column(name = "ENROLL_DATE")
     private LocalDateTime enrollDate;
 
-    @Column(name = "ADMIN")
-    private String admin;
-
     @Column(name = "ACCOUNT")
     private String account;
 
