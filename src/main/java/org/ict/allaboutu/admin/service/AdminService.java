@@ -25,9 +25,7 @@ public class AdminService {
     private final BoardRepository boardRepository;
 
     public List<AdminDto> getMemberList() {
-//        List<AdminDto> dtos = new ArrayList<>();
-//        Page<Admin> adminEntites = adminRepository.findAll(pageable);
-//        Page<Report> reportEntites = reportRepository.findAll(pageable);
+
         List<AdminDto> dtos = new ArrayList<>();
         List<Admin> adminEntites = adminRepository.findAll();
 
@@ -43,7 +41,7 @@ public class AdminService {
 
             dtos.add(adminDto);
         }
-//        log.info("adminDtos : " + adminDtos);
+
         return dtos;
     }
 
@@ -66,38 +64,6 @@ public class AdminService {
         return dtos;
     }
 
-
-//    public Long updateReportBoard(Long reportNum) throws Exception {
-//        Optional<Board> optionalBoard = boardRepository.findById(boardNum);
-//
-//        if (optionalBoard.isPresent()) {
-//            Board boardEntity = optionalBoard.get();
-//
-//            log.info("boardEntity: " + boardEntity);
-//
-//            LocalDateTime dateFormat = LocalDateTime.now();
-//            boardEntity.setDeleteDate(dateFormat);
-//
-//            boardRepository.save(boardEntity);
-//            Optional<Report> reportOptional = reportRepository.findByReportNum(boardNum);
-//            if (reportOptional.isPresent()){
-//                Report reportEntity = reportOptional.get();
-//
-//                reportEntity.setDeleteDate(dateFormat);
-//                reportRepository.save(reportEntity);
-//            }else{
-//                throw new EntityNotFoundException("report not found with boardNum: " + boardNum);
-//            }
-//
-//        } else {
-//            throw new EntityNotFoundException("Board not found with boardNum: " + boardNum);
-//        }
-//        return boardNum;
-//
-//
-//    }
-
-
     public Board detailReportBoard(Long boardNum) throws Exception {
         Optional<Board> boardEntity = boardRepository.findById(boardNum);
         if(boardEntity.isPresent()){
@@ -114,7 +80,7 @@ public class AdminService {
     }
 
     public Admin updateMemberAccount(Long userNum, AdminDto adminDto) throws Exception {
-        // board DeleteDate 도 수정해야함
+
         Admin adminEntity = adminRepository.findById(userNum)
                 .orElseThrow(() -> new EntityNotFoundException("서비스에는 Id로 찾은 값이 없다"));
 
@@ -129,7 +95,6 @@ public class AdminService {
 
         LocalDateTime date = LocalDateTime.now();
         reportEntity.setDeleteDate(date);
-
 
         reportRepository.save(reportEntity);
 
