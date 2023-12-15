@@ -13,5 +13,5 @@ public interface MailRepository extends JpaRepository<MailDto, Long> {
     @Query(value = "SELECT MAX(m.mailNum) FROM MailDto m")
     Optional<Long> findMaxMailNum();
 
-    List<MailDto> findByUserEmail(String userEmail);
+    List<MailDto> findByUserIdAndUserEmail(String userId, String userEmail);
 }

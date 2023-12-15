@@ -2,6 +2,7 @@ package org.ict.allaboutu.member.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.Response;
 import org.ict.allaboutu.member.domain.Member;
 import org.ict.allaboutu.member.repository.MemberRepository;
 import org.ict.allaboutu.member.service.MailDto;
@@ -12,12 +13,16 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URLDecoder;
 import java.time.LocalDateTime;
+import java.util.NoSuchElementException;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
@@ -73,12 +78,12 @@ public class MemberController {
     }
 
     @GetMapping("/member/findId")
-    public ResponseEntity<String> findId(@RequestBody String userEmail) throws Exception {
-        userEmail = userEmail.substring(1, userEmail.length() - 1); // userEmail 앞뒤 " 제거
+    public ResponseEntity<String> findId(@RequestParam("userEmail") String userEmail) throws Exception {
         String userId = memberService.findIdByUserEmail(userEmail);
 
-        if (userId == null) {
-            return ResponseEntity.noContent().build();
+        System.out.println("userId length : " + userId.length());
+        if (userId.length() <= 2) {
+            throw new NoSuchElementException();
         } else {
             return ResponseEntity.ok(userId);
         }
@@ -92,11 +97,22 @@ public class MemberController {
         boolean exists = memberService.checkUserInfo(userId, userEmail);
 
         if (exists) {
-            MailDto mailDto = mailService.generateTokenAndSendMail(userId, userEmail);
+            MailDto mailDto = mailService.generateTokenAndMail(userId, userEmail);
             return ResponseEntity.ok(mailDto.getIssuedAt());
         } else {
             return ResponseEntity.noContent().build();
         }
+    }
+
+    @PostMapping("/member/sendMail")
+    public ResponseEntity<MailDto> sendMail(@RequestBody String jsonStr) throws Exception {
+        JSONObject jsonObject = new JSONObject(jsonStr);
+        String userId = jsonObject.get("userId").toString();
+        String userEmail = jsonObject.get("userEmail").toString();
+
+        MailDto mailDto = mailService.sendMailWithToken(userId, userEmail);
+
+        return ResponseEntity.ok(mailDto);
     }
 
     @PostMapping("/member/verifyCode")
@@ -111,8 +127,19 @@ public class MemberController {
         return ResponseEntity.ok(isCodeValid);
     }
 
+    @PatchMapping("/member/expireCode")
+    public ResponseEntity<MailDto> expireCode(@RequestBody String jsonStr) throws Exception {
+        JSONObject jsonObject = new JSONObject(jsonStr);
+        String userId = jsonObject.get("userId").toString();
+        String userEmail = jsonObject.get("userEmail").toString();
+
+        MailDto mailDto = mailService.expireCode(userId, userEmail);
+
+        return ResponseEntity.ok(mailDto);
+    }
+
     @PatchMapping("/member/changePwd")
-    public ResponseEntity<Boolean> changePassword(@RequestBody String changePwdDataStr) throws Exception {
+    public ResponseEntity<MemberDto> changePassword(@RequestBody String changePwdDataStr) throws Exception {
         JSONObject changePwdDataJson = new JSONObject(changePwdDataStr);
         String userId = changePwdDataJson.get("userId").toString();
         String userEmail = changePwdDataJson.get("userEmail").toString();
@@ -125,10 +152,9 @@ public class MemberController {
                 .userPwd(encPassword)
                 .build();
 
-//        Member member = memberService.changePassword(member);
+        MemberDto memberDto = memberService.changePassword(member);
 
-
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(memberDto);
     }
 
 

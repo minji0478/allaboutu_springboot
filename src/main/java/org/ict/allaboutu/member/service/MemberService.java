@@ -1,6 +1,7 @@
 package org.ict.allaboutu.member.service;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.ict.allaboutu.member.domain.Member;
 import org.ict.allaboutu.member.domain.UserRole;
 import org.ict.allaboutu.member.repository.MemberRepository;
@@ -8,6 +9,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -72,8 +75,9 @@ public class MemberService {
     }
 
     public String findIdByUserEmail(String userEmail){
-        Member member = memberRepository.findByUserEmail(userEmail);
-        return member != null ? member.getUserId() : null;
+        List<Member> memberList = memberRepository.findByUserEmail(userEmail);
+        List<String> userIdList = memberList.stream().map(Member::getUserId).toList();
+        return memberList != null ? StringUtils.join(userIdList) : null;
     }
 
     public boolean checkUserInfo(String userId, String userEmail) {
@@ -81,4 +85,27 @@ public class MemberService {
         return member != null && member.getUserEmail().equals(userEmail);
     }
 
+    public MemberDto changePassword(Member member) {
+        Member originalMember = memberRepository.findByUserId(member.getUserId());
+
+        originalMember.setUserPwd(member.getUserPwd());
+        memberRepository.save(originalMember);
+
+        return MemberDto.builder()
+                .userNum(originalMember.getUserNum())
+                .userId(originalMember.getUserId())
+                .userName(originalMember.getUserName())
+                .userPwd(originalMember.getUserPwd())
+                .userEmail(originalMember.getUserEmail())
+                .userGender(originalMember.getUserGender())
+                .userPhone(originalMember.getUserPhone())
+                .userProfile(originalMember.getUserProfile())
+                .enrollType(originalMember.getEnrollType())
+                .enrollDate(originalMember.getEnrollDate().toString())
+                .account(originalMember.getAccount())
+                .userBirth(originalMember.getUserBirth().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .reportCount(originalMember.getReportCount())
+                .role(originalMember.getRole())
+                .build();
+    }
 }

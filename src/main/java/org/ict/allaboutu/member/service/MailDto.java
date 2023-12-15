@@ -18,6 +18,8 @@ public class MailDto {
     @Id
     @Column(name = "mail_num")
     private Long mailNum;
+    @Column(name = "user_id")
+    private String userId;
     @Column(name = "user_email")
     private String userEmail;
     @Column(name = "token")
