@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.*;
+import org.ict.allaboutu.member.domain.UserRole;
 
 import java.time.LocalDateTime;
 
@@ -51,11 +52,11 @@ public class Admin {
     @Column(name = "ENROLL_DATE")
     private LocalDateTime enrollDate;
 
-    @Column(name = "ADMIN")
-    private String admin;
-
     @Column(name = "ACCOUNT")
     private String account;
+
+    @Column(name = "ROLE")
+    private UserRole role;
 
 //    @OneToMany
 //    @JoinColumn(name = "BOARD_NUM")  Dto 에서 사용하는 방법임!!
