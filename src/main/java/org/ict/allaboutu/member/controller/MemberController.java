@@ -1,26 +1,25 @@
 package org.ict.allaboutu.member.controller;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.allaboutu.member.domain.Member;
+import org.ict.allaboutu.member.repository.MemberRepository;
 import org.ict.allaboutu.member.service.MailDto;
+import org.ict.allaboutu.member.service.MailService;
 import org.ict.allaboutu.member.service.MemberDto;
 import org.ict.allaboutu.member.service.MemberService;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
-import org.springframework.ui.Model;
+import java.time.LocalDateTime;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-
-import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -29,6 +28,7 @@ import java.util.Map;
 public class MemberController {
 
     private final MemberService memberService;
+    private final MailService mailService;
     private final PasswordEncoder passwordEncoder;
 
     @GetMapping("/member/image/{imageName}")
@@ -72,18 +72,64 @@ public class MemberController {
         return password != null && password.matches(passwordPattern);
     }
 
-    @PostMapping("/member/findId")
-    public ResponseEntity<Void> findId(
-            @RequestParam("email") String userEmail
-    ) {
-        System.out.println("findId - userEmail : " + userEmail);
-        MailDto dto = memberService.createMailForId(userEmail);
+    @GetMapping("/member/findId")
+    public ResponseEntity<String> findId(@RequestBody String userEmail) throws Exception {
+        userEmail = userEmail.substring(1, userEmail.length() - 1); // userEmail 앞뒤 " 제거
+        String userId = memberService.findIdByUserEmail(userEmail);
 
-        memberService.mailSend(dto);
-        return ResponseEntity.noContent().build();
+        if (userId == null) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.ok(userId);
+        }
     }
 
+    @PostMapping("/member/findPwd")
+    public ResponseEntity<LocalDateTime> findPwd(@RequestBody String infoStr) throws Exception {
+        JSONObject infoJson = new JSONObject(infoStr);
+        String userId = infoJson.get("userId").toString();
+        String userEmail = infoJson.get("userEmail").toString();
+        boolean exists = memberService.checkUserInfo(userId, userEmail);
+
+        if (exists) {
+            MailDto mailDto = mailService.generateTokenAndSendMail(userId, userEmail);
+            return ResponseEntity.ok(mailDto.getIssuedAt());
+        } else {
+            return ResponseEntity.noContent().build();
+        }
+    }
+
+    @PostMapping("/member/verifyCode")
+    public ResponseEntity<Boolean> verifyCode(@RequestBody String verifyDataStr) throws Exception {
+        JSONObject verifyDataJson = new JSONObject(verifyDataStr);
+        String userId = verifyDataJson.get("userId").toString();
+        String userEmail = verifyDataJson.get("userEmail").toString();
+        String verificationCode = verifyDataJson.get("verificationCode").toString();
+
+        boolean isCodeValid = mailService.verifyCode(userId, userEmail, verificationCode);
+
+        return ResponseEntity.ok(isCodeValid);
+    }
+
+    @PatchMapping("/member/changePwd")
+    public ResponseEntity<Boolean> changePassword(@RequestBody String changePwdDataStr) throws Exception {
+        JSONObject changePwdDataJson = new JSONObject(changePwdDataStr);
+        String userId = changePwdDataJson.get("userId").toString();
+        String userEmail = changePwdDataJson.get("userEmail").toString();
+        String userPwd = changePwdDataJson.get("userPwd").toString();
+
+        String encPassword = passwordEncoder.encode(userPwd);
+        Member member = Member.builder()
+                .userId(userId)
+                .userEmail(userEmail)
+                .userPwd(encPassword)
+                .build();
+
+//        Member member = memberService.changePassword(member);
+
+
+        return ResponseEntity.ok().build();
+    }
+
+
 }
-
-
-

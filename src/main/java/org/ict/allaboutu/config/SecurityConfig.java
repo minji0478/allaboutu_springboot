@@ -29,10 +29,9 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        List<String> anyList = List.of("/auth/**", "/index.html", "/signup", "/css/**", "/js/**", "/img/**", "/h2-console/**", "/favicon.ico", "/login", "/logout", "/api/**", "/assets/**",
-                "/notices/search", "/notices/imp", "/notices/image/{renameFileName}", "/notices/download/{renameFileName}", "/notices/detail/{noticeNum}", "/boards/search", "/boards/rank", "/boards/image/{imageName}",
-
-                "/", "/member/{userId}", "/user_profile/**", "/member/image/{imageName}", "/style/image/{imageName}", "/personal/image/{imageName}", "/face/image/{imageName}", "/cody/image/{imageName}");
+        List<String> anyList = List.of("/auth/**", "/index.html", "/signup/**", "/css/**", "/js/**", "/img/**", "/h2-console/**", "/favicon.ico", "/login", "/logout", "/api/**", "/assets/**",
+                "/notices/search", "/notices/imp", "/notices/image/{renameFileName}", "/notices/download/{renameFileName}", "/notices/detail/{noticeNum}", "/boards/search", "/boards/image/{imageName}",
+                "/", "/member/{userId}", "/user_profile/**", "/member/image/{imageName}", "/style/image/{imageName}", "/personal/image/{imageName}", "/face/image/{imageName}", "/cody/image/{imageName}", "/member/verifyCode");
         List<String> userOnlyList = List.of("/style/**", "/personal/**", "/boards/{boardNum}", "/cody/**", "/member/{userId}", "/", "/face/**", "/myPage/**", "/upload/**");
         List<String> adminOnlyList = List.of("/reports/{reportNum}", "/reports/**", "/admin/get");
 
@@ -43,6 +42,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeRequests(authorizeRequests ->
                         authorizeRequests
+                                .requestMatchers(HttpMethod.GET, "/boards/rank").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/boards/{boardNum}", "/boards/{boardNum}/likes/{userId}", "/boards/{boardNum}/comments").authenticated()
                                 .requestMatchers(HttpMethod.POST, "/boards", "/boards/{boardNum}/reports", "/boards/{boardNum}/likes", "/boards/{boardNum}/comments").authenticated()
                                 .requestMatchers(HttpMethod.POST, "/notices").hasAuthority(UserRole.ADMIN.name())

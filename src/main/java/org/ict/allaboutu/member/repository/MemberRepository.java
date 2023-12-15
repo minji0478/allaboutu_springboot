@@ -1,13 +1,10 @@
 package org.ict.allaboutu.member.repository;
 
 import org.ict.allaboutu.member.domain.Member;
-import org.ict.allaboutu.member.domain.ProfileHashtagLink;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface MemberRepository extends JpaRepository<Member, Long> {
@@ -21,4 +18,5 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Long findMaxUserNum();
 
     Member findByUserEmail(String userEmail);
+
 }
