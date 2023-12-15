@@ -30,8 +30,7 @@ public class PersonalColorController {
     // UserPersonalColor 에 첨부파일 업로드 메소드
     @PostMapping(value = "/upload", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<String[]> uploadImage(@RequestParam("file") MultipartFile file) {
-        
-        log.info("upload 요청왔다");
+
         log.info("file : " + file);
         String savePath = System.getProperty("user.dir") + "/src/main/resources/personal_upload/";
         String originalFileName = null;

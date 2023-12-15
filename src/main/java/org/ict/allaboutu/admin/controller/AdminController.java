@@ -40,7 +40,6 @@ public class AdminController {
     @PatchMapping("/member/{userNum}")
     public ResponseEntity<Admin> updateMemberAccount(@PathVariable Long userNum, @RequestBody AdminDto adminDto) throws Exception{
         log.info("controllerUserNum : " +userNum);
-//        Admin updateMember = adminService.updateMemberAccount(userNum, adminDto);
         Admin updateMember = adminService.updateMemberAccount(userNum, adminDto);
         return ResponseEntity.ok(updateMember);
     }
