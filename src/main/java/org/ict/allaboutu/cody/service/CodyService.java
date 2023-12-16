@@ -3,6 +3,7 @@ package org.ict.allaboutu.cody.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.ict.allaboutu.board.domain.Board;
 import org.ict.allaboutu.cody.domain.Cody;
 import org.ict.allaboutu.cody.domain.CodyImg;
 import org.ict.allaboutu.cody.domain.Goods;
@@ -18,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +42,6 @@ public class CodyService {
 
         Page<CodyDto> codyDtoPage = codyEntities.map(codyEntity -> {
             System.out.println("==codyEntity : " + codyEntity);
-            // 해시태그 및 첨부파일 목록 조회
             List<CodyImg> codyImgList = codyImgRepository.findAllByCodyNum(codyEntity.getCodyNum());
             List<Goods> goodsList = goodsRepository.findAllByCodyNum(codyEntity.getCodyNum());
             System.out.println("==codyImgList : " + codyImgList);
@@ -53,6 +54,7 @@ public class CodyService {
                     .codyContent(codyEntity.getCodyContent())
                     .modelName(codyEntity.getModelName())
                     .modelImg(codyEntity.getModelImg())
+                    .modelReImg(codyEntity.getModelReImg())
                     .modelHeight(codyEntity.getModelHeight())
                     .modelWeight(codyEntity.getModelWeight())
                     .codyImgList(codyImgList)
@@ -64,33 +66,87 @@ public class CodyService {
         return codyDtoPage;
     }
 
-    public CodyDto createCodyImg(CodyDto codyDto, List<MultipartFile> files) throws Exception {
-//        // cody 테이블에 저장
-//        Long maxCodyNum = codyRepository.findMaxCodyNum();
-//        Cody cody = Cody.builder()
-//                .codyNum(maxCodyNum == null ? 1 : maxCodyNum + 1)
-//                .codyTitle(codyDto.getCodyTitle())
-//                .codyContent(codyDto.getCodyContent())
-//                .formNum(codyDto.getFormNum())
-//                .modelName(codyDto.getModelName())
-//                .modelReImg(codyDto.getModelReImg())
-//                .modelHeight(codyDto.getModelHeight())
-//                .modelWeight(codyDto.getModelWeight())
-//                .modelImg(codyDto.getModelImg())
-//                .build();
-//        Cody saveCody = codyRepository.save(cody);
+    @Transactional
+    public Page<CodyDto> getCodyListAll(Pageable pageable){
+        Page<Cody> codyEntities = codyRepository.findAll(pageable);
+        int codyCount = (int) codyRepository.count();
+
+        System.out.println("== all ==codyCount : " + codyCount);
+        Page<CodyDto> codyDtoPage = codyEntities.map(codyEntity -> {
+            System.out.println("== all ==codyEntity : " + codyEntity);
+            List<CodyImg> codyImgList = codyImgRepository.findAllByCodyNum(codyEntity.getCodyNum());
+            List<Goods> goodsList = goodsRepository.findAllByCodyNum(codyEntity.getCodyNum());
+            System.out.println("== all ==codyImgList : " + codyImgList);
+            System.out.println("== all ==goodsList : " + goodsList);
+
+            return CodyDto.builder()
+                    .codyNum(codyEntity.getCodyNum())
+                    .formNum(codyEntity.getFormNum())
+                    .codyTitle(codyEntity.getCodyTitle())
+                    .codyContent(codyEntity.getCodyContent())
+                    .modelName(codyEntity.getModelName())
+                    .modelImg(codyEntity.getModelImg())
+                    .modelReImg(codyEntity.getModelReImg())
+                    .modelHeight(codyEntity.getModelHeight())
+                    .modelWeight(codyEntity.getModelWeight())
+                    .codyImgList(codyImgList)
+                    .goodsList(goodsList)
+                    .codyCount(codyCount)
+                    .build();
+        });
+        System.out.println("== all == codyDtoPage : " + codyDtoPage);
+        return codyDtoPage;
+    }
 
 
+    public CodyDto createCody(
+            CodyDto codyDto, List<MultipartFile> attachments, MultipartFile modelImg,
+            List<GoodsDto> goodsDto,List<MultipartFile> goodsAttachment) throws Exception {
+        // cody 테이블에 저장
+        Long maxCodyNum = codyRepository.findMaxCodyNum();
+        Long myCodyNum = maxCodyNum == null ? 1 : maxCodyNum + 1;
+        int saveCount = 1;
+
+        //CodyDto myCody = createCody(codyDto, modelImg);
+        //모델이미지
+        if(modelImg != null){
+            try {
+                String renameFileName = uploadImage(modelImg, saveCount);
+                saveCount ++;
+                codyDto.setModelImg(modelImg.getOriginalFilename());
+                codyDto.setModelReImg(renameFileName);
+            }catch(Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        //코디
+        Cody cody = Cody.builder()
+                .codyNum(myCodyNum)
+                .codyTitle(codyDto.getCodyTitle())
+                .codyContent(codyDto.getCodyContent())
+                .formNum(codyDto.getFormNum())
+                .modelName(codyDto.getModelName())
+                .modelReImg(codyDto.getModelReImg())
+                .modelHeight(codyDto.getModelHeight())
+                .modelWeight(codyDto.getModelWeight())
+                .modelImg(codyDto.getModelImg())
+                .build();
+        Cody saveCody = codyRepository.save(cody);
+        System.out.println("=====saveCody : " + saveCody);
         // cody_img 테이블에 저장
         List<CodyImg> codyImgs = new ArrayList<>();
-        Long maxCodyNum = codyRepository.findMaxCodyNum();
-        if (files != null) {
-            Long maxCodyImgNum = codyRepository.findMaxCodyImgNum();
-            for (MultipartFile file : files) {
-                try {
-                    String renameFileName = uploadImage(file);
 
+        //코디 이미지
+        if (attachments != null) {
+            String renameFileName = null;
+            for (MultipartFile file : attachments) {
+                try {
+                    Long maxCodyImgNum = codyRepository.findMaxCodyImgNum();
+                    renameFileName = uploadImage(file, saveCount);
+                    saveCount ++;
                     CodyImg codyImg = CodyImg.builder()
+                            .codyNum(myCodyNum)
                             .codyImgNum(maxCodyImgNum == null ? 1 : maxCodyImgNum + 1)
                             .codyImg(file.getOriginalFilename())
                             .codyReImg(renameFileName)
@@ -104,63 +160,60 @@ public class CodyService {
                 }
             }
         }
-
-        codyDto = CodyDto.builder()
-                .codyNum(maxCodyNum == null ? 1 : maxCodyNum + 1)
-                .codyImgs(codyImgs)
-                .build();
-        return codyDto;
-    }
-
-
-    public CodyDto createCody(CodyDto codyDto, MultipartFile file) {
-        Cody cody = new Cody();
-
-        Long maxCodyNum = codyRepository.findMaxCodyNum();
-        Long codyNum = (maxCodyNum == null) ? 1L : maxCodyNum + 1L;
-        Long maxFornNum = codyRepository.findMaxFormNum();
-        Long formNum = (maxFornNum == null) ? 1L : maxFornNum + 1L;
-
-        cody.setCodyNum(codyNum);
-        cody.setFormNum(formNum);
-
-        if(file != null){
+        int count = 0;
+        List<Goods> goodsList = new ArrayList<>();
+        //상품 리스트
+        if (goodsAttachment != null) {
             String renameFileName = null;
-            try {
-                renameFileName = FileNameChange.change(file.getOriginalFilename(), "yyyyMMddHHmmss");
-                String savePath = System.getProperty("user.dir") + "/src/main/resources/cody_upload/";
-                File saveFile = new File(savePath, renameFileName);
-                file.transferTo(saveFile);
-                cody.setModelImg(file.getOriginalFilename());
-                cody.setModelReImg(renameFileName);
-            }catch(Exception e) {
-                e.printStackTrace();
+            for (MultipartFile file : goodsAttachment) {
+                try {
+                    Long maxGoodsNum = goodsRepository.findMaxGoodsNumber();
+                    renameFileName = uploadImage(file, saveCount);
+                    saveCount ++;
+                    goodsDto.get(count).setGoodsImg(file.getOriginalFilename());
+                    goodsDto.get(count).setGoodsReImg(renameFileName);
+
+                    Goods goods = Goods.builder()
+                            .goodsNum(maxGoodsNum == null ? 1 : maxGoodsNum + 1)
+                            .codyNum(myCodyNum)
+                            .brandName(goodsDto.get(count).getBrandName())
+                            .goodsName(goodsDto.get(count).getGoodsName())
+                            .goodsPrice(goodsDto.get(count).getGoodsPrice())
+                            .goodsSize(goodsDto.get(count).getGoodsSize())
+                            .goodsLink(goodsDto.get(count).getGoodsLink())
+                            .goodsImg(file.getOriginalFilename())
+                            .goodsReImg(renameFileName)
+                            .build();
+
+                    goodsRepository.save(goods);
+
+                    goodsList.add(goods);
+                    count ++;
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             }
         }
 
-        Cody saveCody = codyRepository.save(cody);
+        System.out.println("cody.getModelReImg() : " + cody.getModelReImg());
 
-        CodyDto resultDto = CodyDto.builder()
-                .codyNum(cody.getCodyNum())
-                .codyContent(cody.getCodyContent())
-                .codyTitle(cody.getCodyTitle())
-                .formNum(cody.getFormNum())
-                .modelHeight(cody.getModelHeight())
-                .modelWeight(cody.getModelWeight())
-                .modelName(cody.getModelName())
-                .modelImg(cody.getModelImg())
-                .modelReImg(cody.getModelReImg())
+        codyDto = CodyDto.builder()
+                .codyNum(myCodyNum)
+                .codyImgs(codyImgs)
+                .goodsList(goodsList)
                 .build();
 
-        return resultDto;
+
+        return codyDto;
     }
 
-    public String uploadImage(MultipartFile file) throws Exception {
+    public String uploadImage(MultipartFile file, int saveCount) throws Exception {
         String originalFileName = file.getOriginalFilename();
         String renameFileName = null;
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
         renameFileName = sdf.format(new java.sql.Date(System.currentTimeMillis()));
+        renameFileName += "_" + saveCount;
         renameFileName += originalFileName.substring(originalFileName.lastIndexOf(".") + 1);
 
         String savePath = System.getProperty("user.dir") + "/src/main/resources/cody_upload/";
@@ -173,59 +226,20 @@ public class CodyService {
 
     public void deleteCody(Long codyNum) {
         Cody cody = codyRepository.findById(codyNum).get();
+        cody.setDeleteDate(LocalDateTime.now());
+
         codyRepository.save(cody);
     }
 
-    public GoodsDto createGoods(CodyDto codyDto, MultipartFile file) {
-        Goods goods = new Goods();
+    public void deleteCodyImg(Long codyImgNum) {
+        CodyImg codyImg = codyImgRepository.findById(codyImgNum).get();
+        codyImg.setDeleteDate(LocalDateTime.now());
 
-        Cody cody = codyRepository.findByCodyNum(codyDto.getCodyNum());
-
-        Long maxNum = goodsRepository.findMaxGoodsNumber();
-        Long goodsNum = (maxNum== null) ? 1L : maxNum + 1L ;
-
-        goods.setGoodsNum(goodsNum);
-        goods.setBrandName(goods.getBrandName());
-        goods.setGoodsLink(goods.getGoodsLink());
-        goods.setGoodsName(goods.getGoodsName());
-        goods.setGoodsPrice(goods.getGoodsPrice());
-        goods.setCodyNum(goods.getCodyNum());
-        goods.setGoodsSize(goods.getGoodsSize());
-
-        if (file != null) {
-            String renameFileName = null;
-            try {
-                renameFileName = FileNameChange.change(file.getOriginalFilename(), "yyyyMMddHHmmss");
-                // 상품 이미지 저장하는거 일단 cody 쪽에 경로 잡았습니다.
-                String savePath = System.getProperty("user.dir") + "/src/main/resources/cody_upload/";
-                File saveFile = new File(savePath, renameFileName);
-                file.transferTo(saveFile);
-                goods.setGoodsImg(file.getOriginalFilename());
-                goods.setGoodsReImg(renameFileName);
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-        }
-
-        Goods saveGoods = goodsRepository.save(goods);
-
-        GoodsDto resultDto = GoodsDto.builder()
-                .goodsNum(goods.getGoodsNum())
-                .brandName(goods.getBrandName())
-                .goodsLink(goods.getGoodsLink())
-                .goodsName(goods.getGoodsName())
-                .goodsPrice(goods.getGoodsPrice())
-                .codyNum(cody.getCodyNum())
-                .goodsSize(goods.getGoodsSize())
-                .goodsImg(goods.getGoodsImg())
-                .goodsReImg(goods.getGoodsReImg())
-                .build();
-
-        return resultDto;
+        codyImgRepository.save(codyImg);
     }
 
     public void deleteGoods(Long goodsNum) {
-
+        /*
         Goods goods = goodsRepository.findById(goodsNum).orElse(null);
         if (goods != null) {
             String savePath = System.getProperty("user.dir") + "/src/main/resources/cody_upload/";
@@ -233,5 +247,11 @@ public class CodyService {
             deleteFile.delete();
             goodsRepository.delete(goods);
         }
+        */
+        Goods goods = goodsRepository.findById(goodsNum).get();
+        goods.setDeleteDate(LocalDateTime.now());
+
+        goodsRepository.save(goods);
     }
+
 }
