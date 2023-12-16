@@ -10,6 +10,6 @@ import java.util.List;
 
 @Repository
 public interface CodyImgRepository extends JpaRepository<CodyImg, Long> {
-    @Query("select c from CodyImg c where c.codyNum = :codyNum order by c.codyImgNum asc")
+    @Query("select c from CodyImg c where c.codyNum = :codyNum and c.deleteDate IS NULL order by c.codyImgNum asc")
     List<CodyImg> findAllByCodyNum(@Param("codyNum") Long codyNum);
 }

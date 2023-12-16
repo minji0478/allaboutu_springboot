@@ -6,6 +6,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.*;
 
+import java.sql.Date;
+import java.time.LocalDateTime;
+
 
 @Getter
 @Setter
@@ -43,4 +46,7 @@ public class Goods {
 
     @Column(name = "BRAND_NAME")
     private String brandName;
+
+    @Column(name = "delete_date")
+    private LocalDateTime deleteDate;
 }

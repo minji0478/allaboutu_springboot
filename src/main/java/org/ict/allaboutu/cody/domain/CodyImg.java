@@ -6,6 +6,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.*;
 
+import java.sql.Date;
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @ToString
@@ -27,4 +30,7 @@ public class CodyImg {
 
     @Column(name = "cody_reimg")
     private String codyReImg;
+
+    @Column(name = "delete_date")
+    private LocalDateTime deleteDate;
 }
