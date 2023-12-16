@@ -251,7 +251,6 @@ public class BoardService {
         report.setReportUserNum(reportUserNum);
         report.setReportCause(reportDto.getReportCause());
         report.setReportReason(reportDto.getReportReason());
-        report.setDeleteDate(LocalDateTime.now());
         return ReportRepository.save(report);
     }
 
