@@ -20,4 +20,6 @@ public class WebsiteDto {
     public String webTitle;
 
     public String price;
+
+    public String webLink;
 }
