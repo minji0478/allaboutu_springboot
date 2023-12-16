@@ -13,15 +13,26 @@ import org.ict.allaboutu.member.domain.Member;
 import org.ict.allaboutu.member.repository.MemberRepository;
 import org.ict.allaboutu.oauth.vo.AuthResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.math.BigInteger;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -110,5 +121,102 @@ public class AuthService {
                 new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
             }
         }
+    }
+
+    public Long isMember(Member member) {
+        Member savedMember = memberRepository.findByUserId(member.getUserId());
+        if (savedMember != null) {
+            return savedMember.getUserNum();
+        } else {
+            return null;
+        }
+    }
+
+    public String getSocialLoginReqUrl(String socialType, HttpServletRequest request) {
+        String clientId = "NGMnpWhuYxqpVAAkWCsZ";
+        String redirectUri = "http://localhost:2222/login/naver/callback";
+        String state = generateState();
+
+        String reqUrl = "https://nid.naver.com/oauth2.0/authorize" +
+                "?response_type=code" +
+                "&client_id=" + clientId +
+                "&redirect_uri=" + redirectUri +
+                "&state=" + state;
+
+        request.getSession().setAttribute("state", state);
+
+        return reqUrl;
+    }
+
+    public String generateState()
+    {
+        SecureRandom random = new SecureRandom();
+        return new BigInteger(130, random).toString(32);
+    }
+
+    public Member socialLogin(String socialType, String code, String state) throws Exception {
+        String clientId = "NGMnpWhuYxqpVAAkWCsZ";
+        String clientSecret = "Xren5NUtVq";
+        String tokenRequestUrl = "https://nid.naver.com/oauth2.0/token" +
+                "?client_id=" + clientId +
+                "&client_secret=" + clientSecret +
+                "&grant_type=authorization_code" +
+                "&state=" + state +
+                "&code=" + code;
+
+        // 액세스 토큰 발급 요청
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> responseEntity = restTemplate.getForEntity(tokenRequestUrl, String.class); // 다른 서버로 GET 요청 보내기
+        String responseBody = responseEntity.getBody(); // 응답 처리
+
+        JSONObject responseBodyJson = new JSONObject(responseBody);
+        String accessToken = responseBodyJson.getString("access_token");
+        String refreshToken = responseBodyJson.getString("refresh_token");
+        String tokenType = responseBodyJson.getString("token_type");
+        String expiresIn = responseBodyJson.getString("expires_in");
+
+        System.out.println("\n\nSocial Login - responseBody : " + responseBody);
+        System.out.println("Social Login - accessToken : " + accessToken);
+        System.out.println("Social Login - refreshToken : " + refreshToken);
+        System.out.println("Social Login - tokenType : " + tokenType);
+        System.out.println("Social Login - expiresIn : " + expiresIn);
+
+
+        // 프로필 정보 요청
+        URL profileRequestUrl = new URL("https://openapi.naver.com/v1/nid/me");
+        HttpURLConnection conn = (HttpURLConnection) profileRequestUrl.openConnection();
+
+        // POST 요청을 위해 기본값이 false인 setDoOutput을 true로
+        conn.setRequestMethod("POST");
+        conn.setDoOutput(true);
+        conn.setRequestProperty("Authorization", "Bearer " + accessToken); // 요청 헤더 설정
+
+        // 요청을 통해 얻은 JSON타입의 Response 메세지 읽어오기
+        BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        String line;
+        StringBuilder profileResponseBuilder = new StringBuilder();
+        while ((line = br.readLine()) != null) {
+            profileResponseBuilder.append(line);
+        }
+        br.close();
+        System.out.println("\n\nSocial Login - profileResponse : " + profileResponseBuilder.toString());
+
+        // JSON 타입의 문자열을 객체로 변환
+        JSONObject profileResponseJson = new JSONObject(profileResponseBuilder.toString());
+        JSONObject memberInfoJson = profileResponseJson.getJSONObject("response");
+        Member member = Member.builder()
+                .userId(memberInfoJson.getString("id"))
+                .userPwd(memberInfoJson.getString("email"))
+                .userName(memberInfoJson.getString("nickname"))
+                .userEmail(memberInfoJson.getString("email"))
+                .userGender(memberInfoJson.getString("gender"))
+                .userPhone(memberInfoJson.getString("mobile"))
+                .enrollDate(LocalDateTime.now())
+                .account("N")
+                .build();
+
+        System.out.println("\n\nSocial Login - member : " + member.toString());
+
+        return member;
     }
 }
