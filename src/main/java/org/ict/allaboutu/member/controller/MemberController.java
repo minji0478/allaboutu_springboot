@@ -54,6 +54,7 @@ public class MemberController {
 
     @PostMapping("/signup")
     public ResponseEntity<MemberDto> signup(@RequestBody Member member) {
+        System.out.println("\n\nsignup - Member : " + member);
         log.info("/signup : " + member.toString());
 
         String rawPassword = member.getUserPwd();
@@ -61,6 +62,7 @@ public class MemberController {
         // 비밀번호 유효성 검사
         if (!isValidPassword(rawPassword)) {
             // 유효성 검사에 실패한 경우 에러 응답 반환 또는 예외 처리
+            System.out.println("비밀번호 유효성 검사 실패 : " + rawPassword);
             return ResponseEntity.badRequest().build();
         }
 

@@ -10,7 +10,7 @@ import java.util.List;
 
 @Repository
 public interface GoodsRepository extends JpaRepository<Goods, Long> {
-    @Query("select c from Goods c where c.codyNum = :codyNum order by c.goodsNum desc")
+    @Query("select c from Goods c where c.codyNum = :codyNum and c.deleteDate IS NULL  order by c.goodsNum asc")
     List<Goods> findAllByCodyNum(@Param("codyNum") Long codyNum);
 
     @Query(value="select MAX (g.goodsNum) from Goods g")

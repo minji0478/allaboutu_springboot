@@ -35,4 +35,6 @@ public class Website {
     @Column(name = "PRICE")
     private String price;
 
+    @Column(name = "web_link")
+    private String webLink;
 }

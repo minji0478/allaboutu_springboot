@@ -6,6 +6,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.*;
 
+import java.sql.Date;
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @ToString
@@ -42,5 +45,8 @@ public class Cody {
 
     @Column(name = "model_weight")
     private long modelWeight;
+
+    @Column(name = "delete_date")
+    private LocalDateTime deleteDate;
 
 }
