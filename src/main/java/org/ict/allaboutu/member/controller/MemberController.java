@@ -9,10 +9,7 @@ import org.ict.allaboutu.config.testModel.TokenType;
 import org.ict.allaboutu.config.testModel.Tokens;
 import org.ict.allaboutu.member.domain.Member;
 import org.ict.allaboutu.member.repository.MemberRepository;
-import org.ict.allaboutu.member.service.MailDto;
-import org.ict.allaboutu.member.service.MailService;
-import org.ict.allaboutu.member.service.MemberDto;
-import org.ict.allaboutu.member.service.MemberService;
+import org.ict.allaboutu.member.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.core.io.ClassPathResource;
@@ -235,13 +232,13 @@ public class MemberController {
     }
 
 
-//    @PostMapping("/login/kakao")
-//    public ResponseEntity<Member> kakaoLogin(@RequestBody KakaoLoginRequest request) throws Exception {
-//        System.out.println("\n\nKakao Login - accessToken : " + request.getAccessToken());
-//        System.out.println("Kakao Login - refreshToken : " + request.getRefreshToken());
-//        System.out.println("Kakao Login - userId : " + request.getUserId());
-//
-//        // 여기서 액세스 토큰을 전달하도록 수정
+    @PostMapping("/login/kakao")
+    public ResponseEntity<Member> kakaoLogin(@RequestBody KakaoLoginRequest request) throws Exception {
+        System.out.println("\n\nKakao Login - accessToken : " + request.getAccessToken());
+        System.out.println("Kakao Login - refreshToken : " + request.getRefreshToken());
+        System.out.println("Kakao Login - userId : " + request.getUserId());
+
+        // 여기서 액세스 토큰을 전달하도록 수정
 //        Member member = memberService.kakaoLogin(request);
 //        System.out.println("\n\nKakao Login - member : " + member);
 //
@@ -251,7 +248,8 @@ public class MemberController {
 //        if (userNum != null) {
 //            member.setUserNum(userNum);
 //        }
-//
+
 //        return ResponseEntity.ok(member);
-//    }
+        return ResponseEntity.ok().build();
+    }
 }
