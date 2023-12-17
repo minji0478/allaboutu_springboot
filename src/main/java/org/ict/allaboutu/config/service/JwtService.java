@@ -40,7 +40,7 @@ public class JwtService {
 
     public String generateToken(Member member) {
         Map<String, Object> extraClaims = new HashMap<>();
-        // extraClaims.put("role", member.getAdmin());
+//        extraClaims.put("role", member.getRole());
         // extraClaims.put("userNum", member.getUserNum());
         return buildToken(extraClaims, member, jwtExpiration);
 
@@ -74,8 +74,9 @@ public class JwtService {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder().setSigningKey(getSignInKey()).build().parseClaimsJws(token).getBody();
+        return Jwts.parser().setSigningKey(getSignInKey()).parseClaimsJws(token).getBody();
     }
+
 
     private Key getSignInKey() {
         byte[] keyByte = Decoders.BASE64.decode(secretKey);
