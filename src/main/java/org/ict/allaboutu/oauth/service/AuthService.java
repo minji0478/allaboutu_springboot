@@ -32,6 +32,7 @@ import java.net.URL;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -62,6 +63,7 @@ public class AuthService {
             // 인증이 성공하면 나머지 코드를 진행합니다.
             // member.setAdmin(savedMember.getAdmin());
             // member.setUserNum(savedMember.getUserNum());
+            System.out.println("\n\nlogin 테스트 3 : " + member.getUserId());
             String jwtToken = jwtService.generateToken(member);
             String refreshToken = jwtService.generateRefreshToken(member);
             revokeAllUserTokens(member);
@@ -135,6 +137,7 @@ public class AuthService {
     public String getSocialLoginReqUrl(String socialType, HttpServletRequest request) {
         String clientId = "NGMnpWhuYxqpVAAkWCsZ";
         String redirectUri = "http://localhost:2222/login/naver/callback";
+//        String redirectUri = "http://localhost:2222/auth/social/naver";
         String state = generateState();
 
         String reqUrl = "https://nid.naver.com/oauth2.0/authorize" +
@@ -148,13 +151,40 @@ public class AuthService {
         return reqUrl;
     }
 
+    public Map<String, String> getSocialLoginReqUrl2(String socialType, HttpServletRequest request) throws Exception {
+        String clientId = "NGMnpWhuYxqpVAAkWCsZ";
+        String redirectUri = "http://localhost:2222/login/naver/callback";
+        String state = generateState();
+
+        String firstRequestUrl = "https://nid.naver.com/oauth2.0/authorize" +
+                "?response_type=code" +
+                "&client_id=" + clientId +
+                "&redirect_uri=" + redirectUri +
+                "&state=" + state;
+
+        request.getSession().setAttribute("state", state);
+
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> responseEntity = restTemplate.getForEntity(firstRequestUrl, String.class); // 다른 서버로 GET 요청 보내기
+        String responseBody = responseEntity.getBody(); // 응답 처리
+        System.out.println("\n\nSocial Login - first responseBody : " + responseBody);
+
+        JSONObject responseBodyJson = new JSONObject(responseBody);
+        String accessToken = responseBodyJson.getString("code");
+        String refreshToken = responseBodyJson.getString("state");
+
+        Map<String, String> resultMap = new ObjectMapper().readValue(responseBody, Map.class);
+
+        return resultMap;
+    }
+
     public String generateState()
     {
         SecureRandom random = new SecureRandom();
         return new BigInteger(130, random).toString(32);
     }
 
-    public Member socialLogin(String socialType, String code, String state) throws Exception {
+    public Member naverSocialLogin(String code, String state, HttpServletRequest request) throws Exception {
         String clientId = "NGMnpWhuYxqpVAAkWCsZ";
         String clientSecret = "Xren5NUtVq";
         String tokenRequestUrl = "https://nid.naver.com/oauth2.0/token" +
@@ -163,6 +193,14 @@ public class AuthService {
                 "&grant_type=authorization_code" +
                 "&state=" + state +
                 "&code=" + code;
+
+        String savedState = (String) request.getSession().getAttribute("state");
+
+        if (!state.equals(savedState)) {
+            throw new Exception("Invalid state");
+        } else {
+            request.getSession().removeAttribute("state");
+        }
 
         // 액세스 토큰 발급 요청
         RestTemplate restTemplate = new RestTemplate();
@@ -206,13 +244,12 @@ public class AuthService {
         JSONObject memberInfoJson = profileResponseJson.getJSONObject("response");
         Member member = Member.builder()
                 .userId(memberInfoJson.getString("id"))
-                .userPwd(memberInfoJson.getString("email"))
+                .userPwd(memberInfoJson.getString("id").substring(0, 9) + "@Naver7")
                 .userName(memberInfoJson.getString("nickname"))
                 .userEmail(memberInfoJson.getString("email"))
                 .userGender(memberInfoJson.getString("gender"))
                 .userPhone(memberInfoJson.getString("mobile"))
-                .enrollDate(LocalDateTime.now())
-                .account("N")
+                .enrollType("NAVER")
                 .build();
 
         System.out.println("\n\nSocial Login - member : " + member.toString());
