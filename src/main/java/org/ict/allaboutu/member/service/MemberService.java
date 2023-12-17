@@ -6,7 +6,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.ict.allaboutu.member.domain.Member;
 import org.ict.allaboutu.member.domain.UserRole;
 import org.ict.allaboutu.member.repository.MemberRepository;
-import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -15,7 +14,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
