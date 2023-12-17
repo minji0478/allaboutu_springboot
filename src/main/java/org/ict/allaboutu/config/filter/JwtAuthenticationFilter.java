@@ -36,20 +36,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        /* kakao */
-        if (request.getHeader(HttpHeaders.AUTHORIZATION) != null  && request.getHeader(HttpHeaders.AUTHORIZATION).startsWith("Kakao ")) {
-            String loginName = request.getHeader("UserName");
-            Member loginUser = memberRepository.findByUserId(loginName);
-
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                    loginUser.getUserName(), null, List.of(new SimpleGrantedAuthority(loginUser.getRole().name())));
-            authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-            // 권한 부여
-            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-            filterChain.doFilter(request, response);
-            return;
-        } /* kakao */
 
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
