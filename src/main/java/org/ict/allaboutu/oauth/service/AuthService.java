@@ -151,33 +151,6 @@ public class AuthService {
         return reqUrl;
     }
 
-    public Map<String, String> getSocialLoginReqUrl2(String socialType, HttpServletRequest request) throws Exception {
-        String clientId = "NGMnpWhuYxqpVAAkWCsZ";
-        String redirectUri = "http://localhost:2222/login/naver/callback";
-        String state = generateState();
-
-        String firstRequestUrl = "https://nid.naver.com/oauth2.0/authorize" +
-                "?response_type=code" +
-                "&client_id=" + clientId +
-                "&redirect_uri=" + redirectUri +
-                "&state=" + state;
-
-        request.getSession().setAttribute("state", state);
-
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> responseEntity = restTemplate.getForEntity(firstRequestUrl, String.class); // 다른 서버로 GET 요청 보내기
-        String responseBody = responseEntity.getBody(); // 응답 처리
-        System.out.println("\n\nSocial Login - first responseBody : " + responseBody);
-
-        JSONObject responseBodyJson = new JSONObject(responseBody);
-        String accessToken = responseBodyJson.getString("code");
-        String refreshToken = responseBodyJson.getString("state");
-
-        Map<String, String> resultMap = new ObjectMapper().readValue(responseBody, Map.class);
-
-        return resultMap;
-    }
-
     public String generateState()
     {
         SecureRandom random = new SecureRandom();
