@@ -113,15 +113,17 @@ public class CodyController {
     // 상품 이미지 추가하는 컨트롤러
 
     // 코디이미지 삭제하는 컨트롤러
-    @DeleteMapping("/{codyNum}")
+    @DeleteMapping("/cody/{codyNum}")
     public ResponseEntity<Void> deleteCody(@PathVariable Long codyNum) throws Exception {
+        System.out.println("codyNum : " + codyNum);
         codyService.deleteCody(codyNum);
         return ResponseEntity.noContent().build();
     }
 
     // 상품이미지 삭제하는 컨트롤러
-    @DeleteMapping("/cody_img/{goodsNum}")
+    @DeleteMapping("/codyImg/{codyImgNum}")
     public ResponseEntity<Void> deleteCodyImg(@PathVariable Long codyImgNum) throws Exception {
+        System.out.println("codyImgNum : " + codyImgNum);
         codyService.deleteCodyImg(codyImgNum);
         return ResponseEntity.noContent().build();
     }
@@ -129,6 +131,7 @@ public class CodyController {
     // 상품이미지 삭제하는 컨트롤러
     @DeleteMapping("/goods/{goodsNum}")
     public ResponseEntity<Void> deleteGoods(@PathVariable Long goodsNum) throws Exception {
+        System.out.println("goodsNum : " + goodsNum);
         codyService.deleteGoods(goodsNum);
         return ResponseEntity.noContent().build();
     }
