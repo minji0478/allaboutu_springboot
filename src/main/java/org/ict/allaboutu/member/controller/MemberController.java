@@ -2,9 +2,7 @@ package org.ict.allaboutu.member.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Response;
 import org.ict.allaboutu.member.domain.Member;
-import org.ict.allaboutu.member.repository.MemberRepository;
 import org.ict.allaboutu.member.service.MailDto;
 import org.ict.allaboutu.member.service.MailService;
 import org.ict.allaboutu.member.service.MemberDto;
@@ -13,18 +11,13 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URLDecoder;
 import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
-
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 
 @Slf4j
 @RequiredArgsConstructor

@@ -26,10 +26,13 @@ public class MemberService {
         member.setEnrollDate(LocalDateTime.now());
         member.setAccount("N");
         member.setReportCount(0L);
-        member.setEnrollType("normal");
+        if (member.getEnrollType() == null) {
+            member.setEnrollType("normal");
+        }
         member.setAccount("N");
         member.setRole(UserRole.USER);
         Member savedMember = memberRepository.save(member);
+
 
 
 
