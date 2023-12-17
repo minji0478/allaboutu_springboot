@@ -29,14 +29,11 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        List<String> anyList = List.of("/auth/**", "/index.html", "/signup/**", "/css/**", "/js/**", "/img/**", "/h2-console/**", "/favicon.ico", "/login", "/logout", "/api/**", "/assets/**",
+        List<String> anyList = List.of("/auth/**", "/index.html", "/signup/**", "/css/**", "/js/**", "/img/**", "/h2-console/**", "/favicon.ico", "/login/**", "/logout", "/api/**", "/assets/**",
                 "/notices/search", "/notices/imp", "/notices/image/{renameFileName}", "/notices/download/{renameFileName}", "/notices/detail/{noticeNum}", "/boards/search", "/boards/image/{imageName}",
-                "/", "/member/{userId}", "/user_profile/**", "/member/image/{imageName}", "/style/image/{imageName}", "/personal/image/{imageName}", "/face/image/{imageName}", "/cody/image/{imageName}", "/member/verifyCode");
-        List<String> userOnlyList = List.of("/style/**", "/personal/**", "/boards/{boardNum}", "/cody/**", "/member/{userId}", "/", "/face/**", "/myPage/**", "/upload/**");
+                "/", "/member/{userId}", "/user_profile/**", "/member/image/{imageName}", "/style/image/{imageName}", "/personal/image/{imageName}", "/face/image/{imageName}", "/cody/image/{imageName}", "/member/verifyCode", "/cody/**");
+        List<String> userOnlyList = List.of("/style/**", "/personal/**", "/boards/{boardNum}", "/member/{userId}", "/", "/face/**", "/myPage/**", "/upload/**");
         List<String> adminOnlyList = List.of("/reports/{reportNum}", "/reports/**", "/admin/get");
-
-//        log.info("============UserRole.ADMIN.name() : " + UserRole.ADMIN.name());
-//        log.info("============UserRole.ADMIN.name() : " + UserRole.USER.name());
 
         http
                 .csrf(csrf -> csrf.disable())
