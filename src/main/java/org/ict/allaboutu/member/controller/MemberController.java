@@ -3,41 +3,33 @@ package org.ict.allaboutu.member.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import org.ict.allaboutu.member.service.MailDto;
-import org.ict.allaboutu.member.service.MailService;
-import org.ict.allaboutu.member.service.MemberDto;
-import org.ict.allaboutu.member.service.MemberService;
-
-import org.apache.coyote.Response;
 import org.ict.allaboutu.config.repository.TokenRepository;
 import org.ict.allaboutu.config.service.JwtService;
 import org.ict.allaboutu.config.testModel.TokenType;
 import org.ict.allaboutu.config.testModel.Tokens;
 import org.ict.allaboutu.member.domain.Member;
 import org.ict.allaboutu.member.repository.MemberRepository;
-import org.ict.allaboutu.member.service.*;
-import org.ict.allaboutu.oauth.service.AuthService;
+import org.ict.allaboutu.member.service.MailDto;
+import org.ict.allaboutu.member.service.MailService;
+import org.ict.allaboutu.member.service.MemberDto;
+import org.ict.allaboutu.member.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
-
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
-
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-
 import java.io.*;
-import java.net.URLDecoder;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 @Slf4j
 @RequiredArgsConstructor
